@@ -11,7 +11,7 @@ export default function Header() {
             <FileText className="h-4 w-4 text-primary" />
           </div>
           <span className="font-bold text-base text-foreground tracking-tight" style={{ fontFamily: 'Arial, system-ui, sans-serif' }}>
-            sFOX Invoice Generator
+            Invoice Generator
           </span>
         </Link>
         <div className="flex items-center gap-1">
