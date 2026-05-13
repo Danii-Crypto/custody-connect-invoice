@@ -45,6 +45,7 @@ const defaultCustody = {
   companyAddr1: "1712 Pioneer Avenue Suite 135",
   companyAddr2: "Cheyenne, WY 82001",
   companyPhone: "(424) 277-0535",
+  logoUrl: "https://media.base44.com/images/public/6a049f1fdb040b9d18c5bf50/f444be89d_images_squarespace-cdn_com_sFOX_Logo_RGB_Navy_de6c2b39.png",
   clientName: "Reflect 14 Foundation",
   clientAddr1: "613 KENDAL LN",
   clientAddr2: "LEAGUE CITY, TX 77573",
@@ -65,6 +66,7 @@ const defaultConnect = {
   companyAddr1: "1712 Pioneer Avenue Suite 135",
   companyAddr2: "Cheyenne, WY 82001",
   companyPhone: "(424) 277-0535",
+  logoUrl: "https://media.base44.com/images/public/6a049f1fdb040b9d18c5bf50/f444be89d_images_squarespace-cdn_com_sFOX_Logo_RGB_Navy_de6c2b39.png",
   clientName: "InvestiFi",
   clientAddr1: "8 The Green Suite 7529",
   clientAddr2: "Dover, DE 19901",
@@ -216,8 +218,6 @@ export default function Home() {
       setConnectData(prev => ({ ...prev, invoiceDate: today }));
     }
   }
-
-  const sfoxLogoUrl = "https://media.base44.com/images/public/6a049f1fdb040b9d18c5bf50/f444be89d_images_squarespace-cdn_com_sFOX_Logo_RGB_Navy_de6c2b39.png";
 
   return (
     <div className="min-h-screen bg-background relative font-sans">
@@ -383,6 +383,10 @@ export default function Home() {
                         <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-primary" /> Company Information</h4>
                         <div className="space-y-4">
                           <div>
+                            <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Logo URL</Label>
+                            <Input value={custodyTemp.logoUrl} onChange={e => setCustodyTemp(p => ({ ...p, logoUrl: e.target.value }))} className="bg-card h-9 text-sm" placeholder="https://..." />
+                          </div>
+                          <div>
                             <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Company Name (Optional)</Label>
                             <Input value={custodyTemp.companyName} onChange={e => setCustodyTemp(p => ({ ...p, companyName: e.target.value }))} className="bg-card h-9 text-sm" />
                           </div>
@@ -484,7 +488,7 @@ export default function Home() {
                     {/* Invoice Header */}
                     <div className="flex justify-between items-start p-10 pb-6 border-b border-border print:p-0 print:pb-6 print:pt-4">
                       <div className="flex flex-col items-start gap-4">
-                        <img src={sfoxLogoUrl} alt="sFOX Logo" className="h-10 w-auto object-contain" onError={e => { e.target.style.display='none'; }} />
+                        <img src={custodyData.logoUrl} alt="Company Logo" className="h-10 w-auto object-contain" onError={e => { e.target.style.display='none'; }} />
                         <div>
                           <div className="font-bold text-sm text-foreground uppercase tracking-wide mb-1">sFOX Inc &amp; affiliates</div>
                           <div className="text-xs text-muted-foreground leading-relaxed font-medium">
@@ -668,6 +672,10 @@ export default function Home() {
                         <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-primary" /> Company Information</h4>
                         <div className="space-y-4">
                           <div>
+                            <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Logo URL</Label>
+                            <Input value={connectTemp.logoUrl} onChange={e => setConnectTemp(p => ({ ...p, logoUrl: e.target.value }))} className="bg-card h-9 text-sm" placeholder="https://..." />
+                          </div>
+                          <div>
                             <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Company Name (Optional)</Label>
                             <Input value={connectTemp.companyName} onChange={e => setConnectTemp(p => ({ ...p, companyName: e.target.value }))} className="bg-card h-9 text-sm" />
                           </div>
@@ -797,7 +805,7 @@ export default function Home() {
                     {/* Invoice Header */}
                     <div className="flex justify-between items-start p-10 pb-6 border-b border-border print:p-0 print:pb-6 print:pt-4">
                       <div className="flex flex-col items-start gap-4">
-                        <img src={sfoxLogoUrl} alt="sFOX Logo" className="h-10 w-auto object-contain" onError={e => { e.target.style.display='none'; }} />
+                        <img src={connectData.logoUrl} alt="Company Logo" className="h-10 w-auto object-contain" onError={e => { e.target.style.display='none'; }} />
                         <div>
                           <div className="font-bold text-sm text-foreground uppercase tracking-wide mb-1">sFOX Inc &amp; affiliates</div>
                           <div className="text-xs text-muted-foreground leading-relaxed font-medium">
