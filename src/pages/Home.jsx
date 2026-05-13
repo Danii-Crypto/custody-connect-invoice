@@ -205,7 +205,7 @@ export default function Home() {
                 className={`relative flex items-center gap-2 px-6 py-3 text-sm font-semibold transition-all duration-300 rounded-t-lg overflow-hidden group ${
                   activeTab === "custody"
                     ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                    : "bg-secondary text-foreground/60 hover:bg-secondary/80 hover:text-foreground"
                 }`}
               >
                 {activeTab === "custody" && (
@@ -219,7 +219,7 @@ export default function Home() {
                 className={`relative flex items-center gap-2 px-6 py-3 text-sm font-semibold transition-all duration-300 rounded-t-lg overflow-hidden group ${
                   activeTab === "connect"
                     ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                    : "bg-secondary text-foreground/60 hover:bg-secondary/80 hover:text-foreground"
                 }`}
               >
                 {activeTab === "connect" && (
