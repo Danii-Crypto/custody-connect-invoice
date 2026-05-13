@@ -1,0 +1,48 @@
+{
+  "name": "InvoiceHistory",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client name at time of invoice"
+    },
+    "invoice_type": {
+      "type": "string",
+      "enum": [
+        "custody",
+        "connect"
+      ],
+      "description": "Type of invoice"
+    },
+    "invoice_number": {
+      "type": "string",
+      "description": "Invoice number"
+    },
+    "invoice_date": {
+      "type": "string",
+      "description": "Invoice date"
+    },
+    "due_date": {
+      "type": "string",
+      "description": "Due date"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Total invoice amount"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Downloaded PDF filename"
+    }
+  },
+  "required": [
+    "client_name",
+    "invoice_type",
+    "invoice_number",
+    "amount"
+  ]
+}

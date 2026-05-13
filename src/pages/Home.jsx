@@ -10,6 +10,7 @@ import { Printer, Download, FileText, Link as LinkIcon, Edit, RefreshCw, Check, 
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import ClientSelector from "@/components/ClientSelector";
+import { base44 } from "@/api/base44Client";
 
 // --- ANIMATION COMPONENTS ---
 const AnimatedElement = ({ children, className, delay = 0 }) => {
@@ -186,6 +187,22 @@ export default function Home() {
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [pageWidthMm, imgHeightMm] });
     pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, imgHeightMm);
     pdf.save(fileName);
+
+    // Save invoice history record
+    const amount = isCustody
+      ? Number(data.quantity) * Number(data.unitPrice)
+      : (data.lineItems || []).reduce((s, i) => s + Number(i.quantity) * Number(i.unitPrice), 0);
+    base44.entities.InvoiceHistory.create({
+      client_id: data.clientId || "",
+      client_name: data.clientName || "",
+      invoice_type: isCustody ? "custody" : "connect",
+      invoice_number: isCustody ? custodyInvoiceNum : connectInvoiceNum,
+      invoice_date: data.invoiceDate || "",
+      due_date: data.dueDate || "",
+      amount,
+      file_name: fileName,
+    });
+
     setDownloading(false);
   }
 
@@ -342,7 +359,7 @@ export default function Home() {
                       </button>
                     </div>
                     
-                    <ClientSelector onSelect={c => setCustodyTemp(p => ({ ...p, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "" }))} />
+                    <ClientSelector onSelect={c => setCustodyTemp(p => ({ ...p, clientId: c.id, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "" }))} />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                       {/* Invoice Info */}
@@ -622,7 +639,7 @@ export default function Home() {
                       </button>
                     </div>
                     
-                    <ClientSelector onSelect={c => setConnectTemp(p => ({ ...p, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "" }))} />
+                    <ClientSelector onSelect={c => setConnectTemp(p => ({ ...p, clientId: c.id, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "" }))} />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                       {/* Invoice Info */}
