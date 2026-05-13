@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { FileText, Users } from "lucide-react";
+import { FileText, Users, Layers } from "lucide-react";
 
 export default function Header() {
   const location = useLocation();
@@ -14,17 +14,30 @@ export default function Header() {
             sFOX Invoice Generator
           </span>
         </Link>
-        <Link
-          to="/clients"
-          className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
-            location.pathname === "/clients"
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-          }`}
-        >
-          <Users className="h-4 w-4" />
-          Clients
-        </Link>
+        <div className="flex items-center gap-1">
+          <Link
+            to="/clients"
+            className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
+              location.pathname === "/clients"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+          >
+            <Users className="h-4 w-4" />
+            Clients
+          </Link>
+          <Link
+            to="/bulk"
+            className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
+              location.pathname === "/bulk"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+          >
+            <Layers className="h-4 w-4" />
+            Bulk Generate
+          </Link>
+        </div>
       </div>
     </header>
   );
