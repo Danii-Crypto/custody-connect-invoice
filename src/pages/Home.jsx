@@ -240,14 +240,15 @@ export default function Home() {
                 <div className="print-hidden flex flex-wrap gap-3 mb-6 bg-secondary/30 p-4 rounded-xl border border-border/50">
                   <Button
                     onClick={openCustodyEdit}
-                    className="bg-accent text-accent-foreground hover:bg-accent/90 hover:shadow-lg hover:scale-105 active:scale-95 transition-all shadow-sm"
+                    className="bg-primary text-white hover:bg-primary/90 hover:shadow-lg hover:scale-105 active:scale-95 transition-all shadow-sm"
                   >
                     <Edit className="h-4 w-4 mr-2" />
                     Edit Custody Invoice
                   </Button>
                   <Button
                     onClick={handleGenerateNew}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:scale-105 active:scale-95 transition-all shadow-sm"
+                    variant="outline"
+                    className="border-primary text-primary hover:bg-primary hover:text-white hover:shadow-lg hover:scale-105 active:scale-95 transition-all shadow-sm"
                   >
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Generate New
@@ -255,7 +256,7 @@ export default function Home() {
                   <Button
                     variant="outline"
                     onClick={handlePrint}
-                    className="bg-card text-card-foreground hover:bg-muted hover:text-foreground border-border hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
+                    className="border-border text-foreground hover:bg-muted hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
                   >
                     <Printer className="h-4 w-4 mr-2" />
                     Print
@@ -263,7 +264,7 @@ export default function Home() {
                   <Button
                     variant="outline"
                     onClick={handlePrint}
-                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
+                    className="border-border text-foreground hover:bg-muted hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Download PDF
@@ -406,7 +407,7 @@ export default function Home() {
 
                     {/* Form Actions */}
                     <div className="flex gap-3 mt-8 border-t border-border/50 pt-5">
-                      <Button onClick={applyCustody} className="bg-accent text-accent-foreground hover:bg-accent/90 hover:scale-105 active:scale-95 transition-all shadow-md">
+                      <Button onClick={applyCustody} className="bg-primary text-white hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-md">
                         <Check className="h-4 w-4 mr-2" /> Apply Changes
                       </Button>
                       <Button onClick={resetCustody} variant="outline" className="border-border hover:bg-muted hover:scale-105 active:scale-95 transition-all">
@@ -516,14 +517,15 @@ export default function Home() {
                 <div className="print-hidden flex flex-wrap gap-3 mb-6 bg-secondary/30 p-4 rounded-xl border border-border/50">
                   <Button
                     onClick={openConnectEdit}
-                    className="bg-accent text-accent-foreground hover:bg-accent/90 hover:shadow-lg hover:scale-105 active:scale-95 transition-all shadow-sm"
+                    className="bg-primary text-white hover:bg-primary/90 hover:shadow-lg hover:scale-105 active:scale-95 transition-all shadow-sm"
                   >
                     <Edit className="h-4 w-4 mr-2" />
                     Edit Connect Invoice
                   </Button>
                   <Button
                     onClick={handleGenerateNew}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:scale-105 active:scale-95 transition-all shadow-sm"
+                    variant="outline"
+                    className="border-primary text-primary hover:bg-primary hover:text-white hover:shadow-lg hover:scale-105 active:scale-95 transition-all shadow-sm"
                   >
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Generate New
@@ -531,7 +533,7 @@ export default function Home() {
                   <Button
                     variant="outline"
                     onClick={handlePrint}
-                    className="bg-card text-card-foreground hover:bg-muted hover:text-foreground border-border hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
+                    className="border-border text-foreground hover:bg-muted hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
                   >
                     <Printer className="h-4 w-4 mr-2" />
                     Print
@@ -539,7 +541,7 @@ export default function Home() {
                   <Button
                     variant="outline"
                     onClick={handlePrint}
-                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
+                    className="border-border text-foreground hover:bg-muted hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Download PDF
@@ -723,7 +725,7 @@ export default function Home() {
 
                     {/* Form Actions */}
                     <div className="flex gap-3 mt-8 border-t border-border/50 pt-5">
-                      <Button onClick={applyConnect} className="bg-accent text-accent-foreground hover:bg-accent/90 hover:scale-105 active:scale-95 transition-all shadow-md">
+                      <Button onClick={applyConnect} className="bg-primary text-white hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-md">
                         <Check className="h-4 w-4 mr-2" /> Apply Changes
                       </Button>
                       <Button onClick={resetConnect} variant="outline" className="border-border hover:bg-muted hover:scale-105 active:scale-95 transition-all">
