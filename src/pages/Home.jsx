@@ -10,6 +10,7 @@ import { Printer, Download, FileText, Link as LinkIcon, Edit, RefreshCw, Check, 
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import ClientSelector from "@/components/ClientSelector";
+import MonthlySummary from "@/components/MonthlySummary";
 import { base44 } from "@/api/base44Client";
 
 // --- ANIMATION COMPONENTS ---
@@ -259,6 +260,8 @@ export default function Home() {
                 Invoice Generator
               </h1>
             </div>
+
+            <MonthlySummary />
 
             {/* Tab Switcher */}
             <div className="flex border-b border-border mb-8 gap-2 relative">
