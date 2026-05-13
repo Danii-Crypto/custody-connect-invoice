@@ -64,25 +64,32 @@ export default function Clients() {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
       if (isDataFile) {
-        // Extract structured rows from spreadsheet/CSV
-        const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
-          file_url,
-          json_schema: {
+        // Extract structured rows from spreadsheet/CSV using LLM for flexible column mapping
+        const extracted = await base44.integrations.Core.InvokeLLM({
+          prompt: `This file contains client/company data. Extract ALL rows as a JSON array. Map any column that represents the client or company name to "name", street/address line 1 to "addr1", city/state/zip line to "addr2", country to "country", and any notes/comments to "notes". If a field is missing use empty string. Return only the JSON array of objects.`,
+          file_urls: [file_url],
+          response_json_schema: {
             type: "object",
             properties: {
-              name: { type: "string" },
-              addr1: { type: "string" },
-              addr2: { type: "string" },
-              country: { type: "string" },
-              notes: { type: "string" },
+              clients: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    addr1: { type: "string" },
+                    addr2: { type: "string" },
+                    country: { type: "string" },
+                    notes: { type: "string" },
+                  }
+                }
+              }
             }
           }
         });
-        if (extracted.status === "success") {
-          const rows = Array.isArray(extracted.output) ? extracted.output : [extracted.output];
-          for (const row of rows) {
-            if (row.name) results.push({ ...row, notes: row.notes || "", _file: file.name, _selected: true });
-          }
+        const rows = extracted.clients || [];
+        for (const row of rows) {
+          if (row.name) results.push({ ...row, notes: row.notes || "", _file: file.name, _selected: true });
         }
       } else {
         // PDF / image invoice — extract Bill To via LLM
