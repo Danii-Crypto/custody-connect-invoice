@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Plus, Pencil, Trash2, X, Check, Users, Upload, Loader2, FileText, AlertCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Check, Users, Upload, Loader2, FileText, AlertCircle, Search } from "lucide-react";
 
 const empty = { name: "", addr1: "", addr2: "", country: "US", notes: "" };
 
@@ -15,6 +15,7 @@ export default function Clients() {
   const qc = useQueryClient();
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ ...empty });
+  const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
   const [extractedClients, setExtractedClients] = useState([]);
   const [showExtracted, setShowExtracted] = useState(false);
@@ -243,6 +244,17 @@ export default function Clients() {
           </div>
         )}
 
+        {/* Search Bar */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search clients…"
+            className="pl-9 h-9 text-sm"
+          />
+        </div>
+
         {/* Client List */}
         {isLoading ? (
           <div className="text-center text-muted-foreground py-10">Loading…</div>
@@ -254,7 +266,10 @@ export default function Clients() {
           </div>
         ) : (
           <div className="space-y-3">
-            {clients.map(c => (
+            {clients.filter(c => {
+              const q = search.toLowerCase();
+              return !q || c.name?.toLowerCase().includes(q) || c.addr1?.toLowerCase().includes(q) || c.addr2?.toLowerCase().includes(q) || c.country?.toLowerCase().includes(q) || c.notes?.toLowerCase().includes(q);
+            }).map(c => (
               <div key={c.id} className="bg-card border border-border rounded-xl px-5 py-4 flex items-center justify-between gap-4 hover:border-primary/30 transition-colors">
                 <div className="min-w-0">
                   <div className="font-semibold text-foreground text-sm">{c.name}</div>
