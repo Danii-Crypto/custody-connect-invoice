@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 import { Printer, Download, FileText, Link as LinkIcon, Edit, RefreshCw, Check, X, Plus, Trash2 } from "lucide-react";
 
 // --- ANIMATION COMPONENTS ---
@@ -93,6 +94,7 @@ function generateInvoiceNumber(prefix, dateStr) {
 
 // --- MAIN COMPONENT ---
 export default function Home() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("custody");
   const [custodyData, setCustodyData] = useState({ ...defaultCustody });
   const [connectData, setConnectData] = useState({ ...defaultConnect });
@@ -109,8 +111,16 @@ export default function Home() {
 
   function openCustodyEdit() { setCustodyTemp({ ...custodyData }); setCustodyEditOpen(true); }
   function openConnectEdit() { setConnectTemp({ ...connectData, lineItems: (connectData.lineItems || []).map(i => ({ ...i })) }); setConnectEditOpen(true); }
-  function applyCustody() { setCustodyData({ ...custodyTemp }); setCustodyEditOpen(false); }
-  function applyConnect() { setConnectData({ ...connectTemp, lineItems: (connectTemp.lineItems || []).map(i => ({ ...i })) }); setConnectEditOpen(false); }
+  function applyCustody() {
+    setCustodyData({ ...custodyTemp });
+    setCustodyEditOpen(false);
+    toast({ title: "Invoice updated", description: "Custody invoice has been updated successfully." });
+  }
+  function applyConnect() {
+    setConnectData({ ...connectTemp, lineItems: (connectTemp.lineItems || []).map(i => ({ ...i })) });
+    setConnectEditOpen(false);
+    toast({ title: "Invoice updated", description: "Connect Partner invoice has been updated successfully." });
+  }
   function resetCustody() { setCustodyTemp({ ...defaultCustody }); }
   function resetConnect() { setConnectTemp({ ...defaultConnect, lineItems: defaultConnect.lineItems.map(i => ({ ...i })) }); }
 
@@ -436,15 +446,13 @@ export default function Home() {
                     </div>
 
                     {/* Bill To */}
-                    <div className="px-10 py-8 print:px-0 print:py-6">
-                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Bill To:</div>
-                      <div className="bg-secondary/10 p-5 rounded-lg border border-border/40 inline-block min-w-[300px] print:p-0 print:border-none print:bg-transparent">
-                        <div className="text-base font-bold text-foreground mb-1">{custodyData.clientName}</div>
-                        <div className="text-sm text-muted-foreground leading-relaxed font-medium">
-                          {custodyData.clientAddr1}<br/>
-                          {custodyData.clientAddr2}<br/>
-                          {custodyData.clientCountry}
-                        </div>
+                    <div className="px-10 py-6 print:px-0 print:py-4">
+                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Bill To:</div>
+                      <div className="text-base font-bold text-foreground mb-1">{custodyData.clientName}</div>
+                      <div className="text-sm text-foreground leading-relaxed">
+                        {custodyData.clientAddr1}<br/>
+                        {custodyData.clientAddr2}<br/>
+                        {custodyData.clientCountry}
                       </div>
                     </div>
 
@@ -755,15 +763,13 @@ export default function Home() {
                     </div>
 
                     {/* Bill To */}
-                    <div className="px-10 py-8 print:px-0 print:py-6">
-                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Bill To:</div>
-                      <div className="bg-secondary/10 p-5 rounded-lg border border-border/40 inline-block min-w-[300px] print:p-0 print:border-none print:bg-transparent">
-                        <div className="text-base font-bold text-foreground mb-1">{connectData.clientName}</div>
-                        <div className="text-sm text-muted-foreground leading-relaxed font-medium">
-                          {connectData.clientAddr1}<br/>
-                          {connectData.clientAddr2}<br/>
-                          {connectData.clientCountry}
-                        </div>
+                    <div className="px-10 py-6 print:px-0 print:py-4">
+                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Bill To:</div>
+                      <div className="text-base font-bold text-foreground mb-1">{connectData.clientName}</div>
+                      <div className="text-sm text-foreground leading-relaxed">
+                        {connectData.clientAddr1}<br/>
+                        {connectData.clientAddr2}<br/>
+                        {connectData.clientCountry}
                       </div>
                     </div>
 
