@@ -146,9 +146,11 @@ export default function Home() {
     });
   }
 
-  function handlePrint() {
+  async function handlePrint() {
     const ref = activeTab === "custody" ? custodyInvoiceRef : connectInvoiceRef;
     if (!ref.current) return;
+    const canvas = await html2canvas(ref.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
+    const imgData = canvas.toDataURL("image/png");
     const printWindow = window.open("", "_blank", "width=900,height=700");
     printWindow.document.write(`
       <html>
@@ -156,19 +158,18 @@ export default function Home() {
           <title>Invoice</title>
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: Arial, sans-serif; background: white; }
-            @page { size: A4; margin: 10mm; }
-            @media print {
-              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            }
+            body { background: white; }
+            img { width: 100%; height: auto; display: block; }
+            @page { size: A4; margin: 0; }
+            @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
           </style>
         </head>
-        <body>${ref.current.outerHTML}</body>
+        <body><img src="${imgData}" /></body>
       </html>
     `);
     printWindow.document.close();
     printWindow.focus();
-    setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 600);
   }
 
   async function handleDownloadPDF() {
