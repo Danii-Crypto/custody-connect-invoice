@@ -31,7 +31,6 @@ export default function HowToUse() {
 
         {/* Main Features Grid */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          
           {/* Feature 1: Home - Invoice Creation */}
           <Card>
             <CardHeader>
@@ -137,7 +136,6 @@ export default function HowToUse() {
               </div>
             </CardContent>
           </Card>
-
         </div>
 
         {/* Pro Tips */}
