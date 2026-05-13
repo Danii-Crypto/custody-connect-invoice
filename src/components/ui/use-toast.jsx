@@ -157,8 +157,8 @@ function useToast() {
   return {
     ...state,
     toast,
-    dismiss: (toastId) => dispatch({ type: actionTypes.DISMISS_TOAST, toastId }),
+    dismiss: (toastId) => dispatch({ type: actionTypes.REMOVE_TOAST, toastId }),
   };
 }
 
-export { useToast, toast }; 
+export { useToast, toast };
