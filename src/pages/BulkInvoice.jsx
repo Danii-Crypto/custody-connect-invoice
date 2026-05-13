@@ -393,19 +393,20 @@ async function renderAndDownload(invoiceData, type, containerRef) {
 
   const canvas = await html2canvas(containerRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
   const imgData = canvas.toDataURL("image/png");
-  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const pageWidth = pdf.internal.pageSize.getWidth();   // 210mm
-  const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
-  const imgAspect = canvas.height / canvas.width;
-  // Fill full page width; if taller than page, scale down to fit height instead
-  let imgW = pageWidth;
-  let imgH = pageWidth * imgAspect;
-  if (imgH > pageHeight) {
-    imgH = pageHeight;
-    imgW = pageHeight / imgAspect;
+  const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: "a4" });
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const imgHeight = (canvas.height * pageWidth) / canvas.width;
+  let heightLeft = imgHeight;
+  let position = 0;
+  pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+  heightLeft -= pageHeight;
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
   }
-  // Place at top-left, no vertical centering
-  pdf.addImage(imgData, "PNG", 0, 0, imgW, imgH);
   pdf.save(`${invoiceNum.replace(/\s/g, "_")}_${invoiceData.clientName.replace(/\s/g, "_")}.pdf`);
   containerRef.current.innerHTML = "";
 }
@@ -431,7 +432,7 @@ function buildInvoiceHtml(d, type, logoUrl, invoiceNum, total, fc, fd) {
         </tr>`).join("");
 
   return `
-    <div style="font-family:Arial,sans-serif;font-size:13px;color:#111;background:#fff;padding:32px;width:850px;box-sizing:border-box">
+    <div style="font-family:Arial,sans-serif;font-size:14px;color:#111;background:#fff;padding:40px;width:850px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #e2e8f0;padding-bottom:24px;margin-bottom:24px">
         <div>
           <img src="${logoUrl}" alt="sFOX" style="height:40px;margin-bottom:12px" />
