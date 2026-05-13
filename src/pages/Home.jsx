@@ -150,9 +150,27 @@ export default function Home() {
     window.print();
   }
 
+  function formatFileDate(dateStr) {
+    if (!dateStr) {
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      const yyyy = now.getFullYear();
+      return `${mm}.${dd}.${yyyy}`;
+    }
+    const [y, m, d] = dateStr.split("-");
+    return `${m}.${d}.${y}`;
+  }
+
   async function handleDownloadPDF() {
-    const ref = activeTab === "custody" ? custodyInvoiceRef : connectInvoiceRef;
-    const invoiceNum = activeTab === "custody" ? custodyInvoiceNum : connectInvoiceNum;
+    const isCustody = activeTab === "custody";
+    const ref = isCustody ? custodyInvoiceRef : connectInvoiceRef;
+    const data = isCustody ? custodyData : connectData;
+    const invoiceType = isCustody ? "Custody Invoice" : "Connect Invoice";
+    const clientName = (data.clientName || "Client").replace(/[/\\?%*:|"<>]/g, "-");
+    const dateStr = formatFileDate(data.invoiceDate);
+    const fileName = `${invoiceType}_${clientName}_${dateStr}.pdf`;
+
     if (!ref.current) return;
     setDownloading(true);
     const canvas = await html2canvas(ref.current, {
@@ -165,10 +183,9 @@ export default function Home() {
     const imgData = canvas.toDataURL("image/png");
     const pageWidthMm = 210;
     const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
-    // Use actual content height instead of fixed A4 to avoid blank bottom gap
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [pageWidthMm, imgHeightMm] });
     pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, imgHeightMm);
-    pdf.save(`${invoiceNum.replace(/\s/g, "_")}.pdf`);
+    pdf.save(fileName);
     setDownloading(false);
   }
 
