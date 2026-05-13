@@ -1,0 +1,29 @@
+{
+  "name": "Client",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Client or company name"
+    },
+    "addr1": {
+      "type": "string",
+      "description": "Address line 1"
+    },
+    "addr2": {
+      "type": "string",
+      "description": "Address line 2"
+    },
+    "country": {
+      "type": "string",
+      "description": "Country code or name"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about the client"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

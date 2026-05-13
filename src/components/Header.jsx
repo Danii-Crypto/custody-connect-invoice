@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
-import { FileText } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { FileText, Users } from "lucide-react";
 
 export default function Header() {
+  const location = useLocation();
   return (
     <header className="bg-card border-b border-border shadow-sm sticky top-0 z-50 print:hidden">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -12,6 +13,17 @@ export default function Header() {
           <span className="font-bold text-base text-foreground tracking-tight" style={{ fontFamily: 'Arial, system-ui, sans-serif' }}>
             sFOX Invoice Generator
           </span>
+        </Link>
+        <Link
+          to="/clients"
+          className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
+            location.pathname === "/clients"
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+          }`}
+        >
+          <Users className="h-4 w-4" />
+          Clients
         </Link>
       </div>
     </header>

@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Printer, Download, FileText, Link as LinkIcon, Edit, RefreshCw, Check, X, Plus, Trash2, Loader2 } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import ClientSelector from "@/components/ClientSelector";
 
 // --- ANIMATION COMPONENTS ---
 const AnimatedElement = ({ children, className, delay = 0 }) => {
@@ -333,6 +334,8 @@ export default function Home() {
                       </button>
                     </div>
                     
+                    <ClientSelector onSelect={c => setCustodyTemp(p => ({ ...p, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "" }))} />
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                       {/* Invoice Info */}
                       <div className="bg-secondary/20 p-5 rounded-xl border border-border/40">
@@ -611,6 +614,8 @@ export default function Home() {
                       </button>
                     </div>
                     
+                    <ClientSelector onSelect={c => setConnectTemp(p => ({ ...p, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "" }))} />
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                       {/* Invoice Info */}
                       <div className="bg-secondary/20 p-5 rounded-xl border border-border/40">
