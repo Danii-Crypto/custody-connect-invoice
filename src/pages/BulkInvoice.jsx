@@ -393,21 +393,19 @@ async function renderAndDownload(invoiceData, type, containerRef) {
 
   const canvas = await html2canvas(containerRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false });
   const imgData = canvas.toDataURL("image/png");
-  // Use mm units so we can fit the image exactly onto one A4 page
   const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = pdf.internal.pageSize.getWidth();   // 210mm
   const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
-  // Scale image to fit within the page while preserving aspect ratio
   const imgAspect = canvas.height / canvas.width;
+  // Fill full page width; if taller than page, scale down to fit height instead
   let imgW = pageWidth;
   let imgH = pageWidth * imgAspect;
   if (imgH > pageHeight) {
     imgH = pageHeight;
     imgW = pageHeight / imgAspect;
   }
-  const offsetX = (pageWidth - imgW) / 2;
-  const offsetY = (pageHeight - imgH) / 2;
-  pdf.addImage(imgData, "PNG", offsetX, offsetY, imgW, imgH);
+  // Place at top-left, no vertical centering
+  pdf.addImage(imgData, "PNG", 0, 0, imgW, imgH);
   pdf.save(`${invoiceNum.replace(/\s/g, "_")}_${invoiceData.clientName.replace(/\s/g, "_")}.pdf`);
   containerRef.current.innerHTML = "";
 }
