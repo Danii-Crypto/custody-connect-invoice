@@ -163,21 +163,11 @@ export default function Home() {
       removeContainer: true,
     });
     const imgData = canvas.toDataURL("image/png");
-    // A4 in mm
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const pageWidthMm = 210;
-    const pageHeightMm = 297;
     const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
-    let heightLeft = imgHeightMm;
-    let position = 0;
-    pdf.addImage(imgData, "PNG", 0, position, pageWidthMm, imgHeightMm);
-    heightLeft -= pageHeightMm;
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeightMm;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, pageWidthMm, imgHeightMm);
-      heightLeft -= pageHeightMm;
-    }
+    // Use actual content height instead of fixed A4 to avoid blank bottom gap
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [pageWidthMm, imgHeightMm] });
+    pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, imgHeightMm);
     pdf.save(`${invoiceNum.replace(/\s/g, "_")}.pdf`);
     setDownloading(false);
   }
