@@ -1,5 +1,3 @@
-
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -34,7 +32,7 @@
 
     --muted: 208.2 7.3% 45.7%;
 
-    --muted-foreground: 210 40% 98%;
+    --muted-foreground: 215 16% 47%;
 
     --popover: 0 0% 94.1%;
 
