@@ -147,12 +147,34 @@ export default function Home() {
   }
 
   function handlePrint() {
-    window.print();
+    const ref = activeTab === "custody" ? custodyInvoiceRef : connectInvoiceRef;
+    if (!ref.current) return;
+    const printWindow = window.open("", "_blank", "width=900,height=700");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Invoice</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: Arial, sans-serif; background: white; }
+            @page { size: A4; margin: 10mm; }
+            @media print {
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>${ref.current.outerHTML}</body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
   }
 
   async function handleDownloadPDF() {
     const ref = activeTab === "custody" ? custodyInvoiceRef : connectInvoiceRef;
     const invoiceNum = activeTab === "custody" ? custodyInvoiceNum : connectInvoiceNum;
+    const clientName = activeTab === "custody" ? custodyData.clientName : connectData.clientName;
     if (!ref.current) return;
     setDownloading(true);
     const canvas = await html2canvas(ref.current, {
@@ -162,22 +184,18 @@ export default function Home() {
       logging: false,
     });
     const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: "a4" });
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * pageWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+    const imgAspect = canvas.height / canvas.width;
+    let imgW = pageWidth;
+    let imgH = pageWidth * imgAspect;
+    if (imgH > pageHeight) {
+      imgH = pageHeight;
+      imgW = pageHeight / imgAspect;
     }
-    pdf.save(`${invoiceNum.replace(/\s/g, "_")}.pdf`);
+    pdf.addImage(imgData, "PNG", 0, 0, imgW, imgH);
+    pdf.save(`${invoiceNum.replace(/\s/g, "_")}_${clientName.replace(/\s/g, "_")}.pdf`);
     setDownloading(false);
   }
 
@@ -446,9 +464,13 @@ export default function Home() {
                     </div>
 
                     {/* Form Actions */}
-                    <div className="flex gap-3 mt-8 border-t border-border/50 pt-5">
+                    <div className="flex flex-wrap gap-3 mt-8 border-t border-border/50 pt-5">
                       <Button onClick={applyCustody} className="bg-primary text-white hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-md">
                         <Check className="h-4 w-4 mr-2" /> Apply Changes
+                      </Button>
+                      <Button onClick={() => { applyCustody(); setTimeout(handleDownloadPDF, 100); }} variant="outline" className="border-primary text-primary hover:bg-primary/10 hover:scale-105 active:scale-95 transition-all" disabled={downloading}>
+                        {downloading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+                        Apply &amp; Download PDF
                       </Button>
                       <Button onClick={resetCustody} variant="outline" className="border-border hover:bg-muted hover:scale-105 active:scale-95 transition-all">
                         <RefreshCw className="h-4 w-4 mr-2" /> Reset
@@ -767,9 +789,13 @@ export default function Home() {
                     </div>
 
                     {/* Form Actions */}
-                    <div className="flex gap-3 mt-8 border-t border-border/50 pt-5">
+                    <div className="flex flex-wrap gap-3 mt-8 border-t border-border/50 pt-5">
                       <Button onClick={applyConnect} className="bg-primary text-white hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-md">
                         <Check className="h-4 w-4 mr-2" /> Apply Changes
+                      </Button>
+                      <Button onClick={() => { applyConnect(); setTimeout(handleDownloadPDF, 100); }} variant="outline" className="border-primary text-primary hover:bg-primary/10 hover:scale-105 active:scale-95 transition-all" disabled={downloading}>
+                        {downloading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+                        Apply &amp; Download PDF
                       </Button>
                       <Button onClick={resetConnect} variant="outline" className="border-border hover:bg-muted hover:scale-105 active:scale-95 transition-all">
                         <RefreshCw className="h-4 w-4 mr-2" /> Reset
