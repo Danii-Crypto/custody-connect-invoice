@@ -320,14 +320,6 @@ export default function Home() {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={handlePrint}
-                    className="border-border text-foreground hover:bg-muted hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
-                  >
-                    <Printer className="h-4 w-4 mr-2" />
-                    Print
-                  </Button>
-                  <Button
-                    variant="outline"
                     onClick={handleDownloadPDF}
                     disabled={downloading}
                     className="border-border text-foreground hover:bg-muted hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
@@ -597,14 +589,6 @@ export default function Home() {
                   >
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Generate New
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handlePrint}
-                    className="border-border text-foreground hover:bg-muted hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
-                  >
-                    <Printer className="h-4 w-4 mr-2" />
-                    Print
                   </Button>
                   <Button
                     variant="outline"
