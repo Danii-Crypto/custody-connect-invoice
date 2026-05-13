@@ -10,6 +10,7 @@ import ResetPassword from './pages/ResetPassword';
 import Home from './pages/Home';
 import Clients from './pages/Clients';
 import BulkInvoice from './pages/BulkInvoice';
+import HowToUse from './pages/HowToUse';
 import Layout from './components/Layout';
 // Add page imports here
 
@@ -39,6 +40,7 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<Home />} />
         <Route path="/clients" element={<Clients />} />
         <Route path="/bulk" element={<BulkInvoice />} />
+        <Route path="/how-to-use" element={<HowToUse />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/ResetPassword" element={<ResetPassword />} />
         {/* Add your page Route elements here */}

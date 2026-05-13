@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { FileText, Users, Layers } from "lucide-react";
+import { FileText, Users, Layers, HelpCircle } from "lucide-react";
 
 export default function Header() {
   const location = useLocation();
@@ -36,6 +36,17 @@ export default function Header() {
           >
             <Layers className="h-4 w-4" />
             Bulk Generate
+          </Link>
+          <Link
+            to="/how-to-use"
+            className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
+              location.pathname === "/how-to-use"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+          >
+            <HelpCircle className="h-4 w-4" />
+            Help
           </Link>
         </div>
       </div>
