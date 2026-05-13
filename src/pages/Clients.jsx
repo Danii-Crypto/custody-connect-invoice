@@ -57,26 +57,54 @@ export default function Clients() {
     if (!files.length) return;
     setUploading(true);
     setExtractedClients([]);
+
     const results = [];
     for (const file of files) {
+      const isDataFile = /\.(csv|xlsx|xls|json)$/i.test(file.name);
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      const extracted = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extract the "Bill To" client details from this invoice image/PDF. Return ONLY the client info as JSON with fields: name (company/person name), addr1 (street address line), addr2 (city, state, zip line), country (2-letter code or full name). If a field is not found, use empty string. Do not include the sender/sFOX details.`,
-        file_urls: [file_url],
-        response_json_schema: {
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            addr1: { type: "string" },
-            addr2: { type: "string" },
-            country: { type: "string" },
+
+      if (isDataFile) {
+        // Extract structured rows from spreadsheet/CSV
+        const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url,
+          json_schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              addr1: { type: "string" },
+              addr2: { type: "string" },
+              country: { type: "string" },
+              notes: { type: "string" },
+            }
+          }
+        });
+        if (extracted.status === "success") {
+          const rows = Array.isArray(extracted.output) ? extracted.output : [extracted.output];
+          for (const row of rows) {
+            if (row.name) results.push({ ...row, notes: row.notes || "", _file: file.name, _selected: true });
           }
         }
-      });
-      if (extracted.name) {
-        results.push({ ...extracted, notes: "", _file: file.name, _selected: true });
+      } else {
+        // PDF / image invoice — extract Bill To via LLM
+        const extracted = await base44.integrations.Core.InvokeLLM({
+          prompt: `Extract the "Bill To" client details from this invoice image/PDF. Return ONLY the client info as JSON with fields: name (company/person name), addr1 (street address line), addr2 (city, state, zip line), country (2-letter code or full name). If a field is not found, use empty string. Do not include the sender/sFOX details.`,
+          file_urls: [file_url],
+          response_json_schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              addr1: { type: "string" },
+              addr2: { type: "string" },
+              country: { type: "string" },
+            }
+          }
+        });
+        if (extracted.name) {
+          results.push({ ...extracted, notes: "", _file: file.name, _selected: true });
+        }
       }
     }
+
     setExtractedClients(results);
     setShowExtracted(true);
     setUploading(false);
@@ -107,7 +135,7 @@ export default function Clients() {
             <h1 className="text-2xl font-bold text-foreground">Client List</h1>
           </div>
           <div className="flex gap-2">
-            <input ref={fileInputRef} type="file" accept=".pdf,image/*" multiple className="hidden" onChange={handleInvoiceUpload} />
+            <input ref={fileInputRef} type="file" accept=".pdf,.csv,.xlsx,.xls,.json,image/*" multiple className="hidden" onChange={handleInvoiceUpload} />
             <Button variant="outline" onClick={() => fileInputRef.current.click()} disabled={uploading} className="border-primary text-primary hover:bg-primary/10">
               {uploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
               {uploading ? "Extracting…" : "Upload Invoices"}
