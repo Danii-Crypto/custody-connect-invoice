@@ -255,12 +255,6 @@ export default function Home() {
         >
           {/* Top Wrapper (Hidden on print) */}
           <div className="print-hidden p-8 pb-0">
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold tracking-tight text-foreground" style={{ fontFamily: 'Arial, system-ui, sans-serif' }}>
-                Invoice Generator
-              </h1>
-            </div>
-
             <MonthlySummary />
 
             {/* Tab Switcher */}
