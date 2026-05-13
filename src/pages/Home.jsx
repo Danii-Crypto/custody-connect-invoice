@@ -156,26 +156,27 @@ export default function Home() {
     if (!ref.current) return;
     setDownloading(true);
     const canvas = await html2canvas(ref.current, {
-      scale: 2,
+      scale: 3,
       useCORS: true,
       backgroundColor: "#ffffff",
       logging: false,
+      removeContainer: true,
     });
     const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: "a4" });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * pageWidth) / canvas.width;
-    let heightLeft = imgHeight;
+    // A4 in mm
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pageWidthMm = 210;
+    const pageHeightMm = 297;
+    const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
+    let heightLeft = imgHeightMm;
     let position = 0;
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    pdf.addImage(imgData, "PNG", 0, position, pageWidthMm, imgHeightMm);
+    heightLeft -= pageHeightMm;
     while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
+      position = heightLeft - imgHeightMm;
       pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      pdf.addImage(imgData, "PNG", 0, position, pageWidthMm, imgHeightMm);
+      heightLeft -= pageHeightMm;
     }
     pdf.save(`${invoiceNum.replace(/\s/g, "_")}.pdf`);
     setDownloading(false);
