@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Printer, Download, FileText, Link as LinkIcon, Edit, RefreshCw, Check, X, Plus, Trash2 } from "lucide-react";
+import { Printer, Download, FileText, Link as LinkIcon, Edit, RefreshCw, Check, X, Plus, Trash2, Loader2 } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 // --- ANIMATION COMPONENTS ---
 const AnimatedElement = ({ children, className, delay = 0 }) => {
@@ -96,6 +98,9 @@ function generateInvoiceNumber(prefix, dateStr) {
 export default function Home() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("custody");
+  const [downloading, setDownloading] = useState(false);
+  const custodyInvoiceRef = useRef(null);
+  const connectInvoiceRef = useRef(null);
   const [custodyData, setCustodyData] = useState({ ...defaultCustody });
   const [connectData, setConnectData] = useState({ ...defaultConnect });
   const [custodyEditOpen, setCustodyEditOpen] = useState(false);
@@ -142,6 +147,37 @@ export default function Home() {
 
   function handlePrint() {
     window.print();
+  }
+
+  async function handleDownloadPDF() {
+    const ref = activeTab === "custody" ? custodyInvoiceRef : connectInvoiceRef;
+    const invoiceNum = activeTab === "custody" ? custodyInvoiceNum : connectInvoiceNum;
+    if (!ref.current) return;
+    setDownloading(true);
+    const canvas = await html2canvas(ref.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+    });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: "a4" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * pageWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+    pdf.save(`${invoiceNum.replace(/\s/g, "_")}.pdf`);
+    setDownloading(false);
   }
 
   function handleGenerateNew() {
@@ -263,10 +299,11 @@ export default function Home() {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={handlePrint}
+                    onClick={handleDownloadPDF}
+                    disabled={downloading}
                     className="border-border text-foreground hover:bg-muted hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
                   >
-                    <Download className="h-4 w-4 mr-2" />
+                    {downloading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
                     Download PDF
                   </Button>
                 </div>
@@ -419,7 +456,7 @@ export default function Home() {
 
                 {/* --- INVOICE PREVIEW DOCUMENT --- */}
                 <AnimatedElement delay={200} className="flex justify-center print-full-page">
-                  <div className="w-full max-w-[850px] border-2 border-primary bg-card shadow-2xl print:shadow-none print:border-none mx-auto print:max-w-none print:w-full">
+                  <div ref={custodyInvoiceRef} className="w-full max-w-[850px] border-2 border-primary bg-card shadow-2xl print:shadow-none print:border-none mx-auto print:max-w-none print:w-full">
                     
                     {/* Invoice Header */}
                     <div className="flex justify-between items-start p-10 pb-6 border-b border-border print:p-0 print:pb-6 print:pt-4">
@@ -540,10 +577,11 @@ export default function Home() {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={handlePrint}
+                    onClick={handleDownloadPDF}
+                    disabled={downloading}
                     className="border-border text-foreground hover:bg-muted hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm"
                   >
-                    <Download className="h-4 w-4 mr-2" />
+                    {downloading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
                     Download PDF
                   </Button>
                 </div>
@@ -737,7 +775,7 @@ export default function Home() {
 
                 {/* --- CONNECT INVOICE PREVIEW DOCUMENT --- */}
                 <AnimatedElement delay={200} className="flex justify-center print-full-page">
-                  <div className="w-full max-w-[850px] border-2 border-primary bg-card shadow-2xl print:shadow-none print:border-none mx-auto print:max-w-none print:w-full">
+                  <div ref={connectInvoiceRef} className="w-full max-w-[850px] border-2 border-primary bg-card shadow-2xl print:shadow-none print:border-none mx-auto print:max-w-none print:w-full">
                     
                     {/* Invoice Header */}
                     <div className="flex justify-between items-start p-10 pb-6 border-b border-border print:p-0 print:pb-6 print:pt-4">
