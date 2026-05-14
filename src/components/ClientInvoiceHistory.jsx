@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { FileText, Receipt, Download, Loader2 } from "lucide-react";
+import { FileText, Receipt, Download, Loader2, FileSpreadsheet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
@@ -130,6 +130,30 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
     }
   }
 
+  function handleExportCSV() {
+    const rows = showAll ? history : history;
+    const headers = ["Invoice Number", "Client Name", "Invoice Type", "Invoice Date", "Due Date", "Amount", "File Name"];
+    const csvRows = [
+      headers.join(","),
+      ...rows.map(h => [
+        `"${h.invoice_number || ""}"`,
+        `"${h.client_name || ""}"`,
+        `"${h.invoice_type || ""}"`,
+        `"${h.invoice_date || ""}"`,
+        `"${h.due_date || ""}"`,
+        h.amount || 0,
+        `"${h.file_name || ""}"`,
+      ].join(","))
+    ];
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invoice_history_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   async function handleDownloadZip() {
     const toDownload = history.filter(h => selected.has(h.id));
     if (!toDownload.length) return;
@@ -184,19 +208,29 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
           {selected.size > 0 ? `${selected.size} selected` : "Select all"}
         </label>
 
-        {selected.size > 0 && (
+        <div className="flex items-center gap-2">
           <Button
             size="sm"
-            onClick={handleDownloadZip}
-            disabled={zipping}
-            className="bg-primary text-white hover:bg-primary/90 h-8"
+            variant="outline"
+            onClick={handleExportCSV}
+            className="h-8 border-accent text-accent hover:bg-accent/10"
           >
-            {zipping
-              ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> Zipping…</>
-              : <><Download className="h-3.5 w-3.5 mr-1.5" /> Download ZIP ({selected.size})</>
-            }
+            <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" /> Export CSV
           </Button>
-        )}
+          {selected.size > 0 && (
+            <Button
+              size="sm"
+              onClick={handleDownloadZip}
+              disabled={zipping}
+              className="bg-primary text-white hover:bg-primary/90 h-8"
+            >
+              {zipping
+                ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> Zipping…</>
+                : <><Download className="h-3.5 w-3.5 mr-1.5" /> Download ZIP ({selected.size})</>
+              }
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Invoice List */}
