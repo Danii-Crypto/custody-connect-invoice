@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { FileText, DollarSign } from "lucide-react";
+import { FileText, DollarSign, RefreshCw } from "lucide-react";
 
 function formatCurrency(val) {
   return "$" + Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -9,11 +9,16 @@ function formatCurrency(val) {
 export default function MonthlySummary() {
   const now = new Date();
   const monthLabel = now.toLocaleString("default", { month: "long", year: "numeric" });
+  const qc = useQueryClient();
 
-  const { data: history = [], isLoading } = useQuery({
+  const { data: history = [], isLoading, isFetching } = useQuery({
     queryKey: ["invoice-history-summary"],
     queryFn: () => base44.entities.InvoiceHistory.list("-created_date"),
   });
+
+  function handleRefresh() {
+    qc.invalidateQueries({ queryKey: ["invoice-history-summary"] });
+  }
 
   const thisMonthRecords = history.filter(h => {
     if (!h.created_date) return false;
@@ -27,7 +32,18 @@ export default function MonthlySummary() {
   if (isLoading) return null;
 
   return (
-    <div className="grid grid-cols-2 gap-4 mb-6">
+    <div className="mb-6">
+    <div className="flex justify-end mb-2">
+      <button
+        onClick={handleRefresh}
+        disabled={isFetching}
+        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+      >
+        <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
+        Refresh
+      </button>
+    </div>
+    <div className="grid grid-cols-2 gap-4">
       <div className="bg-primary/5 border border-primary/20 rounded-xl px-5 py-4 flex items-center gap-4">
         <div className="bg-primary/10 p-2.5 rounded-lg shrink-0">
           <DollarSign className="h-5 w-5 text-primary" />
@@ -48,6 +64,7 @@ export default function MonthlySummary() {
           <div className="text-xs text-muted-foreground mt-0.5">{monthLabel}</div>
         </div>
       </div>
+    </div>
     </div>
   );
 }
