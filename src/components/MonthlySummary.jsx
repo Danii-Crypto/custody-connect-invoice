@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { FileText, DollarSign, RefreshCw } from "lucide-react";
+import { FileText, DollarSign, RefreshCw, Trash2 } from "lucide-react";
 
 function formatCurrency(val) {
   return "$" + Number(val || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -10,6 +11,8 @@ export default function MonthlySummary() {
   const now = new Date();
   const monthLabel = now.toLocaleString("default", { month: "long", year: "numeric" });
   const qc = useQueryClient();
+  const [showReset, setShowReset] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const { data: history = [], isLoading, isFetching } = useQuery({
     queryKey: ["invoice-history-summary"],
@@ -18,6 +21,21 @@ export default function MonthlySummary() {
 
   function handleRefresh() {
     qc.invalidateQueries({ queryKey: ["invoice-history-summary"] });
+    setShowReset(true);
+  }
+
+  async function handleReset() {
+    if (!confirm("This will delete all invoice history records for this month. Are you sure?")) return;
+    setResetting(true);
+    const toDelete = history.filter(h => {
+      if (!h.created_date) return false;
+      const d = new Date(h.created_date);
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    });
+    await Promise.all(toDelete.map(h => base44.entities.InvoiceHistory.delete(h.id)));
+    qc.invalidateQueries({ queryKey: ["invoice-history-summary"] });
+    setResetting(false);
+    setShowReset(false);
   }
 
   const thisMonthRecords = history.filter(h => {
@@ -33,7 +51,17 @@ export default function MonthlySummary() {
 
   return (
     <div className="mb-6">
-    <div className="flex justify-end mb-2">
+    <div className="flex justify-end items-center gap-3 mb-2">
+      {showReset && (
+        <button
+          onClick={handleReset}
+          disabled={resetting}
+          className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+          {resetting ? "Resetting..." : "Reset This Month"}
+        </button>
+      )}
       <button
         onClick={handleRefresh}
         disabled={isFetching}
