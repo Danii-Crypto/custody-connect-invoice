@@ -178,17 +178,22 @@ export default function Home() {
     if (!ref.current) return;
     setDownloading(true);
     const canvas = await html2canvas(ref.current, {
-      scale: 3,
+      scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
       logging: false,
       removeContainer: true,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: ref.current.scrollWidth,
     });
     const imgData = canvas.toDataURL("image/png");
     const pageWidthMm = 210;
-    const imgHeightMm = (canvas.height * pageWidthMm) / canvas.width;
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [pageWidthMm, imgHeightMm] });
-    pdf.addImage(imgData, "PNG", 0, 0, pageWidthMm, imgHeightMm);
+    const marginMm = 8;
+    const contentWidthMm = pageWidthMm - marginMm * 2;
+    const imgHeightMm = (canvas.height * contentWidthMm) / canvas.width;
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [pageWidthMm, imgHeightMm + marginMm * 2] });
+    pdf.addImage(imgData, "PNG", marginMm, marginMm, contentWidthMm, imgHeightMm);
     pdf.save(fileName);
 
     // Save invoice history record
