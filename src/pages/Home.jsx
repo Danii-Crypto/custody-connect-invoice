@@ -553,18 +553,16 @@ export default function Home() {
                     </div>
 
                     {/* Footer */}
-                    <div className="px-10 py-8 bg-secondary/10 border-t border-border print:px-0 print:bg-transparent print:pt-4">
-                      <div className="max-w-2xl space-y-4">
-                        <p className="text-sm text-card-foreground leading-relaxed bg-card p-4 rounded-lg border border-border/40 shadow-sm print:shadow-none print:border-none print:p-0 print:bg-transparent">
+                    <div className="px-10 py-8 border-t border-border print:px-0 print:pt-4">
+                      <div className="max-w-2xl space-y-3">
+                        <p className="text-sm text-foreground leading-relaxed">
                           {custodyData.paymentNotice}
                         </p>
-                        <p className="text-sm text-muted-foreground font-medium">
+                        <p className="text-sm text-foreground">
                           If you have any questions concerning this invoice, please contact{" "}
-                          <a href={`mailto:${custodyData.contactEmail}`} className="text-primary hover:underline font-bold transition-colors">{custodyData.contactEmail}</a>.
+                          <a href={`mailto:${custodyData.contactEmail}`} className="text-primary hover:underline font-semibold transition-colors">{custodyData.contactEmail}</a>.
                         </p>
-                        <div className="pt-4 mt-4 border-t border-border/30 print:border-none">
-                          <p className="text-sm font-bold text-foreground">Thank you for your business,<br /><span className="text-primary">sFOX</span></p>
-                        </div>
+                        <p className="text-sm font-bold text-foreground pt-1">Thank you for your business,<br /><span className="text-primary">sFOX</span></p>
                       </div>
                     </div>
 
@@ -872,18 +870,16 @@ export default function Home() {
                     </div>
 
                     {/* Footer */}
-                    <div className="px-10 py-8 bg-secondary/10 border-t border-border print:px-0 print:bg-transparent print:pt-4">
-                      <div className="max-w-2xl space-y-4">
-                        <p className="text-sm text-card-foreground leading-relaxed bg-card p-4 rounded-lg border border-border/40 shadow-sm print:shadow-none print:border-none print:p-0 print:bg-transparent">
+                    <div className="px-10 py-8 border-t border-border print:px-0 print:pt-4">
+                      <div className="max-w-2xl space-y-3">
+                        <p className="text-sm text-foreground leading-relaxed">
                           {connectData.paymentNotice}
                         </p>
-                        <p className="text-sm text-muted-foreground font-medium">
+                        <p className="text-sm text-foreground">
                           If you have any questions concerning this invoice, please contact{" "}
-                          <a href={`mailto:${connectData.contactEmail}`} className="text-primary hover:underline font-bold transition-colors">{connectData.contactEmail}</a>.
+                          <a href={`mailto:${connectData.contactEmail}`} className="text-primary hover:underline font-semibold transition-colors">{connectData.contactEmail}</a>.
                         </p>
-                        <div className="pt-4 mt-4 border-t border-border/30 print:border-none">
-                          <p className="text-sm font-bold text-foreground">Thank you for your business,<br /><span className="text-primary">sFOX</span></p>
-                        </div>
+                        <p className="text-sm font-bold text-foreground pt-1">Thank you for your business,<br /><span className="text-primary">sFOX</span></p>
                       </div>
                     </div>
 
