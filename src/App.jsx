@@ -10,7 +10,7 @@ import ResetPassword from './pages/ResetPassword';
 import Home from './pages/Home';
 import Clients from './pages/Clients';
 import BulkInvoice from './pages/BulkInvoice';
-import HowToUse from './pages/HowToUse';
+import HowToUse from './pages/HowToUse.jsx';
 import Layout from './components/Layout';
 // Add page imports here
 
