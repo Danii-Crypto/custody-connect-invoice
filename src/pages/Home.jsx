@@ -37,10 +37,14 @@ const AnimatedElement = ({ children, className, delay = 0 }) => {
 };
 
 // --- DATA MOCKS ---
+const today = new Date();
+const todayStr = today.toISOString().split("T")[0];
+const dueDateStr = new Date(today.getTime() + 7 * 86400000).toISOString().split("T")[0];
+
 const defaultCustody = {
   prefix: "RD",
-  invoiceDate: "2025-03-10",
-  dueDate: "2025-03-17",
+  invoiceDate: todayStr,
+  dueDate: dueDateStr,
   companyName: "",
   companyAddr1: "1712 Pioneer Avenue Suite 135",
   companyAddr2: "Cheyenne, WY 82001",
@@ -59,8 +63,8 @@ const defaultCustody = {
 
 const defaultConnect = {
   prefix: "ON",
-  invoiceDate: "2025-03-10",
-  dueDate: "2025-10-31",
+  invoiceDate: todayStr,
+  dueDate: dueDateStr,
   serviceMonth: "November",
   companyName: "",
   companyAddr1: "1712 Pioneer Avenue Suite 135",
