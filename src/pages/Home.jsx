@@ -61,11 +61,14 @@ const defaultCustody = {
   contactEmail: "clientservices@sfox.com",
 };
 
+const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const currentMonth = months[today.getMonth()];
+
 const defaultConnect = {
   prefix: "ON",
   invoiceDate: todayStr,
   dueDate: dueDateStr,
-  serviceMonth: "November",
+  serviceMonth: currentMonth,
   companyName: "",
   companyAddr1: "1712 Pioneer Avenue Suite 135",
   companyAddr2: "Cheyenne, WY 82001",
@@ -76,7 +79,7 @@ const defaultConnect = {
   clientAddr2: "Dover, DE 19901",
   clientCountry: "US",
   lineItems: [
-    { description: "Nov 2026 Monthly Platform Fee", quantity: 1, unitPrice: 10000.00 },
+    { description: `${currentMonth} ${today.getFullYear()} Monthly Platform Fee`, quantity: 1, unitPrice: 10000.00 },
     { description: "sFOX SAFE Segregated Wallets", quantity: 1, unitPrice: 2500.00 },
     { description: "Same day ACH Fee", quantity: 1, unitPrice: 750.00 },
   ],
@@ -117,8 +120,8 @@ export default function Home() {
   const [custodyTemp, setCustodyTemp] = useState({ ...defaultCustody });
   const [connectTemp, setConnectTemp] = useState({ ...defaultConnect, lineItems: defaultConnect.lineItems.map(i => ({ ...i })) });
 
-  const custodyInvoiceNum = generateInvoiceNumber(custodyData.prefix, custodyData.invoiceDate);
-  const connectInvoiceNum = generateInvoiceNumber(connectData.prefix, connectData.invoiceDate);
+  const custodyInvoiceNum = custodyData.invoiceNumberOverride || generateInvoiceNumber(custodyData.prefix, custodyData.invoiceDate);
+  const connectInvoiceNum = connectData.invoiceNumberOverride || generateInvoiceNumber(connectData.prefix, connectData.invoiceDate);
 
   const connectTotal = (connectData.lineItems || []).reduce((sum, item) => sum + (Number(item.quantity) * Number(item.unitPrice)), 0);
   const connectTempTotal = (connectTemp.lineItems || []).reduce((sum, item) => sum + (Number(item.quantity) * Number(item.unitPrice)), 0);
@@ -377,12 +380,22 @@ export default function Home() {
                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Invoice Date</Label>
-                              <Input type="date" value={custodyTemp.invoiceDate} onChange={e => setCustodyTemp(p => ({ ...p, invoiceDate: e.target.value }))} className="bg-card h-9 text-sm" />
+                              <Input type="date" value={custodyTemp.invoiceDate} onChange={e => setCustodyTemp(p => ({ ...p, invoiceDate: e.target.value, invoiceNumberOverride: "" }))} className="bg-card h-9 text-sm" />
                             </div>
                             <div>
                               <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Due Date</Label>
                               <Input type="date" value={custodyTemp.dueDate} onChange={e => setCustodyTemp(p => ({ ...p, dueDate: e.target.value }))} className="bg-card h-9 text-sm" />
                             </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Invoice Number (Override)</Label>
+                            <Input
+                              placeholder={generateInvoiceNumber(custodyTemp.prefix, custodyTemp.invoiceDate)}
+                              value={custodyTemp.invoiceNumberOverride || ""}
+                              onChange={e => setCustodyTemp(p => ({ ...p, invoiceNumberOverride: e.target.value }))}
+                              className="bg-card h-9 text-sm"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">Leave blank to auto-generate</p>
                           </div>
                         </div>
                       </div>
@@ -651,12 +664,22 @@ export default function Home() {
                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Invoice Date</Label>
-                              <Input type="date" value={connectTemp.invoiceDate} onChange={e => setConnectTemp(p => ({ ...p, invoiceDate: e.target.value }))} className="bg-card h-9 text-sm" />
+                              <Input type="date" value={connectTemp.invoiceDate} onChange={e => setConnectTemp(p => ({ ...p, invoiceDate: e.target.value, invoiceNumberOverride: "" }))} className="bg-card h-9 text-sm" />
                             </div>
                             <div>
                               <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Due Date</Label>
                               <Input type="date" value={connectTemp.dueDate} onChange={e => setConnectTemp(p => ({ ...p, dueDate: e.target.value }))} className="bg-card h-9 text-sm" />
                             </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Invoice Number (Override)</Label>
+                            <Input
+                              placeholder={generateInvoiceNumber(connectTemp.prefix, connectTemp.invoiceDate)}
+                              value={connectTemp.invoiceNumberOverride || ""}
+                              onChange={e => setConnectTemp(p => ({ ...p, invoiceNumberOverride: e.target.value }))}
+                              className="bg-card h-9 text-sm"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">Leave blank to auto-generate</p>
                           </div>
                           <div>
                             <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Service Month</Label>

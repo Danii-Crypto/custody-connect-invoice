@@ -1,8 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
-import { FileText, Users, Layers, HelpCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { FileText, Users, Layers, HelpCircle, Moon, Sun } from "lucide-react";
+import { getTheme, setTheme } from "@/lib/theme";
 
 export default function Header() {
   const location = useLocation();
+  const [dark, setDark] = useState(() => getTheme() === "dark");
+
+  function toggleTheme() {
+    const next = dark ? "light" : "dark";
+    setTheme(next);
+    setDark(!dark);
+  }
+
   return (
     <header className="bg-card border-b border-border shadow-sm sticky top-0 z-50 print:hidden">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -48,6 +58,13 @@ export default function Header() {
             <HelpCircle className="h-4 w-4" />
             Help
           </Link>
+          <button
+            onClick={toggleTheme}
+            className="ml-1 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            title={dark ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
         </div>
       </div>
     </header>

@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, X, Check, Users, Upload, Loader2, FileText, AlertCircle, Search, History } from "lucide-react";
 import ClientInvoiceHistory from "@/components/ClientInvoiceHistory";
 
-const empty = { name: "", addr1: "", addr2: "", country: "US", notes: "" };
+const empty = { name: "", client_type: "custody", addr1: "", addr2: "", country: "US", notes: "" };
 
 export default function Clients() {
   const { toast } = useToast();
@@ -17,6 +18,7 @@ export default function Clients() {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ ...empty });
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("clients"); // "clients" | "history"
   const [historyClient, setHistoryClient] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -242,6 +244,19 @@ export default function Clients() {
                 <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. Acme Corp" className="h-9 text-sm" />
               </div>
               <div>
+                <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Client Type</Label>
+                <Select value={form.client_type || "custody"} onValueChange={val => setForm(p => ({ ...p, client_type: val }))}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="custody">Custody</SelectItem>
+                    <SelectItem value="connect">Connect</SelectItem>
+                    <SelectItem value="both">Both</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Address Line 1</Label>
                 <Input value={form.addr1} onChange={e => setForm(p => ({ ...p, addr1: e.target.value }))} placeholder="Street address" className="h-9 text-sm" />
               </div>
@@ -269,7 +284,18 @@ export default function Clients() {
 
         {activeTab === "clients" && (
           <>
-            {/* Search Bar */}
+            {/* Type Filter + Search Bar */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {["all", "custody", "connect", "both"].map(t => (
+                <button
+                  key={t}
+                  onClick={() => setTypeFilter(t)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors capitalize ${typeFilter === t ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
+                >
+                  {t === "all" ? "All Types" : t}
+                </button>
+              ))}
+            </div>
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -293,7 +319,9 @@ export default function Clients() {
               <div className="space-y-3">
                 {clients.filter(c => {
                   const q = search.toLowerCase();
-                  return !q || c.name?.toLowerCase().includes(q) || c.addr1?.toLowerCase().includes(q) || c.addr2?.toLowerCase().includes(q) || c.country?.toLowerCase().includes(q) || c.notes?.toLowerCase().includes(q);
+                  const matchSearch = !q || c.name?.toLowerCase().includes(q) || c.addr1?.toLowerCase().includes(q) || c.addr2?.toLowerCase().includes(q) || c.country?.toLowerCase().includes(q) || c.notes?.toLowerCase().includes(q);
+                  const matchType = typeFilter === "all" || c.client_type === typeFilter || !c.client_type;
+                  return matchSearch && matchType;
                 }).map(c => (
                   <div key={c.id} className="bg-card border border-border rounded-xl px-5 py-4 flex items-center justify-between gap-4 hover:border-primary/30 transition-colors">
                     <div className="min-w-0">
@@ -303,7 +331,14 @@ export default function Clients() {
                           {[c.addr1, c.addr2, c.country].filter(Boolean).join(" · ")}
                         </div>
                       )}
-                      {c.notes && <div className="text-xs text-muted-foreground/70 mt-0.5 truncate">{c.notes}</div>}
+                      <div className="flex items-center gap-2 mt-1">
+                        {c.client_type && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold border ${c.client_type === "custody" ? "bg-primary/10 text-primary border-primary/20" : c.client_type === "connect" ? "bg-accent/10 text-accent border-accent/20" : "bg-secondary text-secondary-foreground border-border"}`}>
+                            {c.client_type}
+                          </span>
+                        )}
+                        {c.notes && <span className="text-xs text-muted-foreground/70 truncate">{c.notes}</span>}
+                      </div>
                     </div>
                     <div className="flex gap-2 shrink-0">
                       <Button variant="ghost" size="sm" onClick={() => { setHistoryClient(c); setActiveTab("history"); }} className="h-8 px-2 hover:bg-primary/10 hover:text-primary" title="View invoice history">
