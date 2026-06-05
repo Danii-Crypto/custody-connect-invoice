@@ -73,6 +73,13 @@ export default function BulkInvoice() {
     queryFn: () => base44.entities.Client.list("-created_date"),
   });
 
+  // Filter clients by invoice type
+  const filteredClients = clients.filter(c => {
+    if (invoiceType === "custody") return !c.client_type || c.client_type === "custody" || c.client_type === "both";
+    if (invoiceType === "connect") return !c.client_type || c.client_type === "connect" || c.client_type === "both";
+    return true;
+  });
+
   function toggleClient(c) {
     setSelectedClients(prev =>
       prev.find(x => x.id === c.id) ? prev.filter(x => x.id !== c.id) : [...prev, c]
@@ -80,8 +87,8 @@ export default function BulkInvoice() {
   }
 
   function toggleAll() {
-    if (selectedClients.length === clients.length) setSelectedClients([]);
-    else setSelectedClients([...clients]);
+    if (selectedClients.length === filteredClients.length) setSelectedClients([]);
+    else setSelectedClients([...filteredClients]);
   }
 
   function getOverride(clientId) {
@@ -159,7 +166,7 @@ export default function BulkInvoice() {
               <div className="space-y-3">
                 <div>
                   <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Invoice Type</Label>
-                  <Select value={invoiceType} onValueChange={setInvoiceType}>
+                  <Select value={invoiceType} onValueChange={v => { setInvoiceType(v); setSelectedClients([]); }}>
                     <SelectTrigger className="h-9 text-sm">
                       <SelectValue />
                     </SelectTrigger>
@@ -247,19 +254,19 @@ export default function BulkInvoice() {
           <div className="lg:col-span-2">
             <div className="bg-card border border-border rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold text-foreground">Select Clients ({selectedClients.length}/{clients.length})</h2>
+                <h2 className="text-sm font-bold text-foreground">Select Clients ({selectedClients.length}/{filteredClients.length})</h2>
                 <button onClick={toggleAll} className="text-xs text-primary hover:underline font-medium">
-                  {selectedClients.length === clients.length ? "Deselect All" : "Select All"}
+                  {selectedClients.length === filteredClients.length && filteredClients.length > 0 ? "Deselect All" : "Select All"}
                 </button>
               </div>
 
               {isLoading ? (
                 <div className="text-center text-muted-foreground py-8 text-sm">Loading clients…</div>
-              ) : clients.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8 text-sm">No clients yet. Add clients on the Clients page first.</div>
+              ) : filteredClients.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8 text-sm">No {invoiceType} clients found. Add clients on the Clients page first.</div>
               ) : (
                 <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-                  {clients.map(c => {
+                  {filteredClients.map(c => {
                     const selected = !!selectedClients.find(x => x.id === c.id);
                     const override = getOverride(c.id);
                     const expanded = expandedClient === c.id;
