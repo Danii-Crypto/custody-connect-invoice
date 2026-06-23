@@ -53,49 +53,49 @@ export default function MonthlySummary() {
   if (isLoading) return null;
 
   return (
-    <div className="mb-6">
-    <div className="flex justify-end items-center gap-3 mb-2">
-      {showReset && isAdmin && (
+    <div className="mb-8">
+      <div className="flex justify-end items-center gap-3 mb-3">
+        {showReset && isAdmin && (
+          <button
+            onClick={handleReset}
+            disabled={resetting}
+            className="flex items-center gap-1.5 text-sm text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
+          >
+            <Trash2 className="h-4 w-4" />
+            {resetting ? "Resetting..." : "Reset This Month"}
+          </button>
+        )}
         <button
-          onClick={handleReset}
-          disabled={resetting}
-          className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
+          onClick={handleRefresh}
+          disabled={isFetching}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
         >
-          <Trash2 className="h-3.5 w-3.5" />
-          {resetting ? "Resetting..." : "Reset This Month"}
+          <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+          Refresh
         </button>
-      )}
-      <button
-        onClick={handleRefresh}
-        disabled={isFetching}
-        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-      >
-        <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
-        Refresh
-      </button>
-    </div>
-    <div className="grid grid-cols-2 gap-4">
-      <div className="bg-primary/5 border border-primary/20 rounded-xl px-5 py-4 flex items-center gap-4">
-        <div className="bg-primary/10 p-2.5 rounded-lg shrink-0">
-          <DollarSign className="h-5 w-5 text-primary" />
+      </div>
+      <div className="grid grid-cols-2 gap-5">
+        <div className="bg-primary/5 border-2 border-primary/20 rounded-2xl px-7 py-6 flex items-center gap-5 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 transition-all">
+          <div className="bg-primary p-4 rounded-2xl shrink-0 shadow-md shadow-primary/20">
+            <DollarSign className="h-8 w-8 text-primary-foreground" />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Billed This Month</div>
+            <div className="text-4xl font-black text-primary leading-none">{formatCurrency(totalAmount)}</div>
+            <div className="text-sm text-muted-foreground mt-2 font-medium">{monthLabel}</div>
+          </div>
         </div>
-        <div>
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">Billed This Month</div>
-          <div className="text-xl font-black text-primary">{formatCurrency(totalAmount)}</div>
-          <div className="text-xs text-muted-foreground mt-0.5">{monthLabel}</div>
+        <div className="bg-accent/5 border-2 border-accent/20 rounded-2xl px-7 py-6 flex items-center gap-5 hover:shadow-lg hover:shadow-accent/10 hover:-translate-y-0.5 transition-all">
+          <div className="bg-accent p-4 rounded-2xl shrink-0 shadow-md shadow-accent/20">
+            <FileText className="h-8 w-8 text-accent-foreground" />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Invoices Generated</div>
+            <div className="text-4xl font-black text-accent leading-none">{invoiceCount}</div>
+            <div className="text-sm text-muted-foreground mt-2 font-medium">{monthLabel}</div>
+          </div>
         </div>
       </div>
-      <div className="bg-accent/5 border border-accent/20 rounded-xl px-5 py-4 flex items-center gap-4">
-        <div className="bg-accent/10 p-2.5 rounded-lg shrink-0">
-          <FileText className="h-5 w-5 text-accent" />
-        </div>
-        <div>
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">Invoices Generated</div>
-          <div className="text-xl font-black text-accent">{invoiceCount}</div>
-          <div className="text-xs text-muted-foreground mt-0.5">{monthLabel}</div>
-        </div>
-      </div>
-    </div>
     </div>
   );
 }
