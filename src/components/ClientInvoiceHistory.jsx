@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { FileText, Receipt, Download, Loader2, FileSpreadsheet, Trash2 } from "lucide-react";
+import { FileText, Receipt, Download, Loader2, FileSpreadsheet, Trash2, CheckCircle2, Anchor } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
@@ -31,16 +31,16 @@ async function generatePdfBytes(invoice) {
   const fmtCur = (v) => "$" + Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   container.innerHTML = `
-    <div style="border-bottom:2px solid #0095ff;padding-bottom:20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;">
+    <div style="border-bottom:2px solid #1565c0;padding-bottom:20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;">
       <div>
-        <div style="font-weight:bold;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">sFOX Inc &amp; affiliates</div>
+        <div style="font-weight:bold;font-size:13px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;color:#1565c0;">Alessa's Boat Clinic Foundation Limited</div>
         <div style="font-size:11px;color:#555;line-height:1.6;">
-          1712 Pioneer Avenue Suite 135<br/>Cheyenne, WY 82001<br/>(424) 277-0535
+          Jamaica<br/>876-363-9741 | 876-838-3081 | 876-303-9855
         </div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:2px;border-bottom:2px solid #ddd;padding-bottom:8px;margin-bottom:10px;">
-          ${invoice.invoice_type === "custody" ? "Custody Invoice" : "Connect Invoice"}
+        <div style="font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:2px;border-bottom:2px solid #fb8c00;padding-bottom:8px;margin-bottom:10px;color:#1565c0;">
+          Boat Clinic Invoice
         </div>
         <div style="font-size:12px;color:#555;line-height:1.8;">
           <div>Invoice Number: <strong style="color:#000;">${invoice.invoice_number || "—"}</strong></div>
@@ -52,17 +52,18 @@ async function generatePdfBytes(invoice) {
     <div style="margin-bottom:20px;">
       <div style="font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px;">Bill To:</div>
       <div style="font-size:14px;font-weight:bold;">${invoice.client_name || "—"}</div>
+      ${invoice.vessel_name ? `<div style="font-size:12px;color:#1565c0;font-weight:600;margin-top:4px;">Vessel: ${invoice.vessel_name}</div>` : ""}
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px;">
       <thead>
-        <tr style="background:#0095ff;color:white;">
+        <tr style="background:#1565c0;color:white;">
           <th style="text-align:left;padding:10px 14px;">Description</th>
           <th style="text-align:right;padding:10px 14px;">Amount</th>
         </tr>
       </thead>
       <tbody>
         <tr style="border-bottom:1px solid #eee;">
-          <td style="padding:12px 14px;">${invoice.invoice_type === "custody" ? "Custody Fee" : "Connect Partner Services"}</td>
+          <td style="padding:12px 14px;">Boat Clinic Services</td>
           <td style="padding:12px 14px;text-align:right;font-weight:bold;">${fmtCur(invoice.amount)}</td>
         </tr>
       </tbody>
@@ -70,12 +71,12 @@ async function generatePdfBytes(invoice) {
     <div style="display:flex;justify-content:flex-end;margin-bottom:24px;">
       <div style="background:#f5f5f5;padding:12px 20px;border-radius:6px;display:flex;gap:16px;align-items:center;">
         <span style="font-weight:bold;text-transform:uppercase;font-size:12px;color:#555;">Total Due:</span>
-        <span style="font-size:22px;font-weight:900;color:#0095ff;">${fmtCur(invoice.amount)}</span>
+        <span style="font-size:22px;font-weight:900;color:#1565c0;">${fmtCur(invoice.amount)}</span>
       </div>
     </div>
     <div style="border-top:1px solid #eee;padding-top:16px;font-size:11px;color:#666;">
-      <p>Your sFOX account will be charged by the due date. Please ensure there are sufficient funds available.</p>
-      <p style="margin-top:8px;font-weight:bold;color:#000;">Thank you for your business, <span style="color:#0095ff;">sFOX</span></p>
+      <p>Payment is due within seven days. A 50% deposit is required before work begins.</p>
+      <p style="margin-top:8px;font-weight:bold;color:#000;">Thank you for your business, <span style="color:#1565c0;">Alessa's Boat Clinic</span></p>
     </div>
   `;
 
@@ -295,8 +296,9 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
               </Badge>
               <button
                 onClick={e => { e.stopPropagation(); handleToggleStatus(h.id, h.status); }}
-                className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${h.status === "paid" ? "bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700" : "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700"}`}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${h.status === "paid" ? "bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700" : "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700"}`}
               >
+                {h.status === "paid" ? <CheckCircle2 className="h-3 w-3" /> : <Anchor className="h-3 w-3" />}
                 {h.status === "paid" ? "Paid" : "Pending"}
               </button>
               <div className="font-bold text-primary text-sm">{formatCurrency(h.amount)}</div>

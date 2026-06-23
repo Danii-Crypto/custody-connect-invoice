@@ -30,7 +30,7 @@ export default function Home() {
           <div className="print-hidden p-8 pb-0">
             <div className="text-center mb-8">
               <img src={profile.logoUrl} alt="Alessa's Boat Clinic" className="h-16 w-auto object-contain mx-auto mb-2" onError={e => { e.target.style.display = 'none'; }} />
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">Invoice Generator</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">Boat Clinic Invoicing</h1>
             </div>
 
             <MonthlySummary />

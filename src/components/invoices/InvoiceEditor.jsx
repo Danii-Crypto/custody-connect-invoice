@@ -35,6 +35,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
     logoUrl: profile.logoUrl,
     contactEmail: profile.contactEmail,
     clientEmail: "",
+    vesselName: "",
     clientId: "",
     ...(invoiceConfig.defaultClient || {}),
     serviceDescription: invoiceConfig.serviceDescription || "",
@@ -108,6 +109,12 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
   function updateLine(idx, field, value) {
     setTemp(prev => ({ ...prev, lineItems: prev.lineItems.map((item, i) => i === idx ? { ...item, [field]: value } : item) }));
   }
+  function applyTemplate(templateId) {
+    const template = (profile.serviceTemplates || []).find(t => t.id === templateId);
+    if (!template) return;
+    setTemp(prev => ({ ...prev, lineItems: template.lineItems.map(i => ({ ...i })) }));
+    toast({ title: "Template applied", description: `${template.name} loaded — adjust quantities and prices as needed.` });
+  }
 
   async function downloadPDF() {
     if (!invoiceRef.current) return;
@@ -130,6 +137,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
     base44.entities.InvoiceHistory.create({
       client_id: data.clientId || "",
       client_name: data.clientName || "",
+      vessel_name: data.vesselName || "",
       invoice_type: invoiceConfig.id,
       invoice_number: invoiceNum,
       invoice_date: data.invoiceDate || "",
@@ -183,7 +191,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
             </button>
           </div>
 
-          <ClientSelector onSelect={c => setTemp(p => ({ ...p, clientId: c.id, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "", clientEmail: c.email || "" }))} />
+          <ClientSelector onSelect={c => setTemp(p => ({ ...p, clientId: c.id, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "", clientEmail: c.email || "", vesselName: c.vessel_name || "" }))} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
             {/* Invoice Info */}
@@ -285,6 +293,10 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
                   <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Client Email</Label>
                   <Input type="email" value={temp.clientEmail} onChange={e => setTemp(p => ({ ...p, clientEmail: e.target.value }))} className="bg-card h-9 text-sm" placeholder="client@example.com" />
                 </div>
+                <div>
+                  <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Vessel Name</Label>
+                  <Input value={temp.vesselName} onChange={e => setTemp(p => ({ ...p, vesselName: e.target.value }))} className="bg-card h-9 text-sm" placeholder="e.g. SS Sea Breeze" />
+                </div>
               </div>
             </div>
 
@@ -310,6 +322,18 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
                 </div>
               ) : (
                 <div className="space-y-3">
+                  {(profile.serviceTemplates || []).length > 0 && (
+                    <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                      <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Apply Service Template</Label>
+                      <Select onValueChange={val => applyTemplate(val)}>
+                        <SelectTrigger className="bg-card h-9 text-sm"><SelectValue placeholder="Choose a template to pre-fill line items…" /></SelectTrigger>
+                        <SelectContent>
+                          {(profile.serviceTemplates || []).map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1.5">Template fills line items — you can still edit, add, or remove any item below.</p>
+                    </div>
+                  )}
                   {(temp.lineItems || []).map((item, idx) => (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} key={idx} className="bg-card border border-border/50 rounded-lg p-4 shadow-sm hover:border-primary/30 transition-colors">
                       <div className="flex justify-between items-center mb-3 border-b border-border/40 pb-2">
@@ -411,6 +435,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
           <div className="px-10 py-6 print:px-0 print:py-4">
             <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Bill To:</div>
             <div className="text-base font-bold text-foreground mb-1">{data.clientName}</div>
+            {data.vesselName && <div className="text-sm text-primary font-semibold mb-1">Vessel: {data.vesselName}</div>}
             <div className="text-sm text-foreground leading-relaxed">
               {data.clientAddr1 && <>{data.clientAddr1}<br /></>}
               {data.clientAddr2 && <>{data.clientAddr2}<br /></>}

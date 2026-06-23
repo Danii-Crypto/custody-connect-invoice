@@ -78,6 +78,7 @@ export default function BulkInvoice() {
       const invoiceData = {
         ...shared,
         clientName: client.name,
+        vesselName: client.vessel_name || "",
         clientAddr1: client.addr1 || "",
         clientAddr2: client.addr2 || "",
         clientCountry: client.country || "",
@@ -102,8 +103,8 @@ export default function BulkInvoice() {
             <Layers className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Bulk Invoice Generator</h1>
-            <p className="text-sm text-muted-foreground">Generate invoices for multiple clients at once</p>
+            <h1 className="text-2xl font-bold text-foreground">Fleet Invoicing</h1>
+            <p className="text-sm text-muted-foreground">Generate invoices for multiple vessel owners at once</p>
           </div>
         </div>
 
@@ -175,16 +176,16 @@ export default function BulkInvoice() {
           <div className="lg:col-span-2">
             <div className="bg-card border border-border rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold text-foreground">Select Clients ({selectedClients.length}/{clients.length})</h2>
+                <h2 className="text-sm font-bold text-foreground">Select Owners ({selectedClients.length}/{clients.length})</h2>
                 <button onClick={toggleAll} className="text-xs text-primary hover:underline font-medium">
                   {selectedClients.length === clients.length && clients.length > 0 ? "Deselect All" : "Select All"}
                 </button>
               </div>
 
               {isLoading ? (
-                <div className="text-center text-muted-foreground py-8 text-sm">Loading clients…</div>
+                <div className="text-center text-muted-foreground py-8 text-sm">Loading owners…</div>
               ) : clients.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8 text-sm">No clients yet. Add clients on the Clients page first.</div>
+                <div className="text-center text-muted-foreground py-8 text-sm">No owners yet. Add owners on the Vessel Owners page first.</div>
               ) : (
                 <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
                   {clients.map(c => {
@@ -283,6 +284,7 @@ async function renderAndDownload(invoiceData, containerRef) {
 
   base44.entities.InvoiceHistory.create({
     client_name: invoiceData.clientName || "",
+    vessel_name: invoiceData.vesselName || "",
     invoice_type: "boatclinic",
     invoice_number: invoiceNum,
     invoice_date: invoiceData.invoiceDate || "",
@@ -337,6 +339,7 @@ function buildInvoiceHtml(d, invoiceNum, total) {
       <div style="margin-bottom:24px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b;margin-bottom:8px">Bill To:</div>
         <div style="font-weight:700;font-size:15px">${d.clientName}</div>
+        ${d.vesselName ? `<div style="font-size:13px;color:${primaryColor};font-weight:600;margin-top:4px">Vessel: ${d.vesselName}</div>` : ""}
         <div style="font-size:13px;line-height:1.6;margin-top:4px">${d.clientAddr1}${d.clientAddr1 ? "<br/>" : ""}${d.clientAddr2}<br/>${d.clientCountry}</div>
       </div>
       <table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">

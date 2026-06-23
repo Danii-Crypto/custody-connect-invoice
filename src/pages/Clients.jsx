@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Pencil, Trash2, X, Check, Users, Upload, Loader2, FileText, AlertCircle, Search, History } from "lucide-react";
 import ClientInvoiceHistory from "@/components/ClientInvoiceHistory";
 
-const empty = { name: "", addr1: "", addr2: "", country: "JM", notes: "" };
+const empty = { name: "", email: "", vessel_name: "", addr1: "", addr2: "", country: "JM", notes: "" };
 
 export default function Clients() {
   const { toast } = useToast();
@@ -46,7 +46,7 @@ export default function Clients() {
   });
 
   function startNew() { setForm({ ...empty }); setEditingId("new"); }
-  function startEdit(c) { setForm({ name: c.name, addr1: c.addr1 || "", addr2: c.addr2 || "", country: c.country || "JM", notes: c.notes || "" }); setEditingId(c.id); }
+  function startEdit(c) { setForm({ name: c.name, email: c.email || "", vessel_name: c.vessel_name || "", addr1: c.addr1 || "", addr2: c.addr2 || "", country: c.country || "JM", notes: c.notes || "" }); setEditingId(c.id); }
   function cancel() { setEditingId(null); }
 
   function save() {
@@ -71,7 +71,7 @@ export default function Clients() {
       if (isDataFile) {
         // Extract structured rows from spreadsheet/CSV using LLM for flexible column mapping
         const extracted = await base44.integrations.Core.InvokeLLM({
-          prompt: `This file contains client/company data. Extract ALL rows as a JSON array. Map any column that represents the client or company name to "name", street/address line 1 to "addr1", city/state/zip line to "addr2", country to "country", and any notes/comments to "notes". If a field is missing use empty string. Return only the JSON array of objects.`,
+          prompt: `This file contains client/company data. Extract ALL rows as a JSON array. Map any column that represents the client or company name to "name", any vessel/boat name to "vessel_name", street/address line 1 to "addr1", city/state/zip line to "addr2", country to "country", and any notes/comments to "notes". If a field is missing use empty string. Return only the JSON array of objects.`,
           file_urls: [file_url],
           response_json_schema: {
             type: "object",
@@ -82,6 +82,7 @@ export default function Clients() {
                   type: "object",
                   properties: {
                     name: { type: "string" },
+                    vessel_name: { type: "string" },
                     addr1: { type: "string" },
                     addr2: { type: "string" },
                     country: { type: "string" },
@@ -99,12 +100,13 @@ export default function Clients() {
       } else {
         // PDF / image invoice — extract Bill To via LLM
         const extracted = await base44.integrations.Core.InvokeLLM({
-          prompt: `Extract the "Bill To" client details from this invoice image/PDF. Return ONLY the client info as JSON with fields: name (company/person name), addr1 (street address line), addr2 (city, state, zip line), country (2-letter code or full name). If a field is not found, use empty string. Do not include the sender/sFOX details.`,
+          prompt: `Extract the "Bill To" client details from this invoice image/PDF. Return ONLY the client info as JSON with fields: name (company/person name), vessel_name (boat/vessel name if present), addr1 (street address line), addr2 (city, state, zip line), country (2-letter code or full name). If a field is not found, use empty string. Do not include the sender details.`,
           file_urls: [file_url],
           response_json_schema: {
             type: "object",
             properties: {
               name: { type: "string" },
+              vessel_name: { type: "string" },
               addr1: { type: "string" },
               addr2: { type: "string" },
               country: { type: "string" },
@@ -144,7 +146,7 @@ export default function Clients() {
             <div className="bg-primary/10 p-2 rounded-lg">
               <Users className="h-5 w-5 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Clients</h1>
+            <h1 className="text-2xl font-bold text-foreground">Vessel Owners</h1>
           </div>
           <div className="flex gap-2">
             <input ref={fileInputRef} type="file" accept=".pdf,.csv,.xlsx,.xls,.json,image/*" multiple className="hidden" onChange={handleInvoiceUpload} />
@@ -156,7 +158,7 @@ export default function Clients() {
                 </Button>
                 {editingId !== "new" && (
                   <Button onClick={startNew} className="bg-primary text-white hover:bg-primary/90">
-                    <Plus className="h-4 w-4 mr-2" /> Add Client
+                    <Plus className="h-4 w-4 mr-2" /> Add Owner
                   </Button>
                 )}
               </>
@@ -170,13 +172,13 @@ export default function Clients() {
             onClick={() => { setActiveTab("clients"); setHistoryClient(null); }}
             className={`flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all ${activeTab === "clients" ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
           >
-            <Users className="h-4 w-4" /> Client List
+            <Users className="h-4 w-4" /> Owner List
           </button>
           <button
             onClick={() => setActiveTab("history")}
             className={`flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all ${activeTab === "history" ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
           >
-            <History className="h-4 w-4" /> Invoice History
+            <History className="h-4 w-4" /> Service Logs
           </button>
         </div>
 
@@ -201,6 +203,10 @@ export default function Clients() {
                       <div>
                         <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Name *</Label>
                         <Input value={c.name} onChange={e => setExtractedClients(prev => prev.map((x, i) => i === idx ? { ...x, name: e.target.value } : x))} className="h-8 text-sm" />
+                      </div>
+                      <div>
+                        <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Vessel Name</Label>
+                        <Input value={c.vessel_name || ""} onChange={e => setExtractedClients(prev => prev.map((x, i) => i === idx ? { ...x, vessel_name: e.target.value } : x))} className="h-8 text-sm" />
                       </div>
                       <div>
                         <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Address Line 1</Label>
@@ -235,11 +241,11 @@ export default function Clients() {
         {editingId && (
           <div className="bg-card border border-border rounded-xl p-6 mb-6 shadow-sm">
             <h3 className="text-base font-semibold text-foreground mb-4">
-              {editingId === "new" ? "New Client" : "Edit Client"}
+              {editingId === "new" ? "New Vessel Owner" : "Edit Vessel Owner"}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Client Name *</Label>
+                <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Owner Name *</Label>
                 <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. Acme Corp" className="h-9 text-sm" />
               </div>
               <div>
@@ -256,7 +262,11 @@ export default function Clients() {
               </div>
               <div className="sm:col-span-2">
                 <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Email</Label>
-                <Input type="email" value={form.email || ""} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="client@example.com" className="h-9 text-sm" />
+                <Input type="email" value={form.email || ""} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="owner@example.com" className="h-9 text-sm" />
+              </div>
+              <div className="sm:col-span-2">
+                <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Vessel Name</Label>
+                <Input value={form.vessel_name || ""} onChange={e => setForm(p => ({ ...p, vessel_name: e.target.value }))} placeholder="e.g. SS Sea Breeze" className="h-9 text-sm" />
               </div>
               <div>
                 <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Notes</Label>
@@ -265,7 +275,7 @@ export default function Clients() {
             </div>
             <div className="flex gap-3 mt-5 pt-4 border-t border-border">
               <Button onClick={save} disabled={isSaving || !form.name.trim()} className="bg-primary text-white hover:bg-primary/90">
-                <Check className="h-4 w-4 mr-2" /> {editingId === "new" ? "Save Client" : "Update Client"}
+                <Check className="h-4 w-4 mr-2" /> {editingId === "new" ? "Save Owner" : "Update Owner"}
               </Button>
               <Button variant="outline" onClick={cancel}><X className="h-4 w-4 mr-2" /> Cancel</Button>
             </div>
@@ -279,7 +289,7 @@ export default function Clients() {
               <Input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Search clients…"
+                placeholder="Search owners…"
                 className="pl-9 h-9 text-sm"
               />
             </div>
@@ -290,19 +300,20 @@ export default function Clients() {
             ) : clients.length === 0 ? (
               <div className="text-center text-muted-foreground py-16 bg-card rounded-xl border border-border">
                 <Users className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">No clients yet</p>
-                <p className="text-sm mt-1">Add your first client above.</p>
+                <p className="font-medium">No owners yet</p>
+                <p className="text-sm mt-1">Add your first vessel owner above.</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {clients.filter(c => {
                   const q = search.toLowerCase();
-                  const matchSearch = !q || c.name?.toLowerCase().includes(q) || c.addr1?.toLowerCase().includes(q) || c.addr2?.toLowerCase().includes(q) || c.country?.toLowerCase().includes(q) || c.notes?.toLowerCase().includes(q);
+                  const matchSearch = !q || c.name?.toLowerCase().includes(q) || c.vessel_name?.toLowerCase().includes(q) || c.addr1?.toLowerCase().includes(q) || c.addr2?.toLowerCase().includes(q) || c.country?.toLowerCase().includes(q) || c.notes?.toLowerCase().includes(q);
                   return matchSearch;
                 }).map(c => (
                   <div key={c.id} className="bg-card border border-border rounded-xl px-5 py-4 flex items-center justify-between gap-4 hover:border-primary/30 transition-colors">
                     <div className="min-w-0">
                       <div className="font-semibold text-foreground text-sm">{c.name}</div>
+                      {c.vessel_name && <div className="text-xs text-primary font-medium mt-0.5">Vessel: {c.vessel_name}</div>}
                       {(c.addr1 || c.addr2) && (
                         <div className="text-xs text-muted-foreground mt-0.5 truncate">
                           {[c.addr1, c.addr2, c.country].filter(Boolean).join(" · ")}
@@ -339,7 +350,7 @@ export default function Clients() {
                 onClick={() => setHistoryClient(null)}
                 className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${!historyClient ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:border-primary/50"}`}
               >
-                All Clients
+                All Owners
               </button>
               {clients.map(c => (
                 <button

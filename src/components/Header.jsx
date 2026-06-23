@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { FileText, Users, Layers, HelpCircle, Moon, Sun, BarChart3 } from "lucide-react";
+import { Anchor, Ship, Layers, HelpCircle, Moon, Sun, BarChart3 } from "lucide-react";
 import { getTheme, setTheme } from "@/lib/theme";
 
 export default function Header() {
@@ -18,7 +18,7 @@ export default function Header() {
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
           <div className="bg-primary/10 p-1.5 rounded-lg group-hover:bg-primary/20 transition-colors">
-            <FileText className="h-4 w-4 text-primary" />
+            <Anchor className="h-4 w-4 text-primary" />
           </div>
           <span className="font-bold text-base text-foreground tracking-tight">
             Boat Clinic Invoices
@@ -33,8 +33,8 @@ export default function Header() {
                 : "text-muted-foreground hover:text-foreground hover:bg-secondary"
             }`}
           >
-            <Users className="h-4 w-4" />
-            Clients
+            <Ship className="h-4 w-4" />
+            Owners
           </Link>
           <Link
             to="/bulk"
@@ -45,7 +45,7 @@ export default function Header() {
             }`}
           >
             <Layers className="h-4 w-4" />
-            Bulk Generate
+            Fleet Invoicing
           </Link>
           <Link
             to="/reports"

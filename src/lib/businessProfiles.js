@@ -21,6 +21,55 @@ export const businessProfiles = {
       accountType: "Savings",
       accountNumber: "844315201",
     },
+    serviceTemplates: [
+      {
+        id: "hull-maintenance",
+        name: "Hull Maintenance & Repair",
+        lineItems: [
+          { description: "Hull inspection and assessment", quantity: 1, unitPrice: 0 },
+          { description: "Hull cleaning and surface preparation", quantity: 1, unitPrice: 0 },
+          { description: "Fiberglass repair and patching", quantity: 1, unitPrice: 0 },
+          { description: "Anti-fouling bottom paint application", quantity: 1, unitPrice: 0 },
+        ]
+      },
+      {
+        id: "engine-service",
+        name: "Engine Service & Diagnostics",
+        lineItems: [
+          { description: "Engine diagnostic scan", quantity: 1, unitPrice: 0 },
+          { description: "Oil change and filter replacement", quantity: 1, unitPrice: 0 },
+          { description: "Coolant system flush and refill", quantity: 1, unitPrice: 0 },
+          { description: "Propeller and shaft inspection", quantity: 1, unitPrice: 0 },
+        ]
+      },
+      {
+        id: "general-inspection",
+        name: "General Vessel Inspection",
+        lineItems: [
+          { description: "Full vessel safety inspection", quantity: 1, unitPrice: 0 },
+          { description: "Safety equipment check", quantity: 1, unitPrice: 0 },
+          { description: "Electrical system diagnostic", quantity: 1, unitPrice: 0 },
+          { description: "Detailed inspection report", quantity: 1, unitPrice: 0 },
+        ]
+      },
+      {
+        id: "anti-fouling",
+        name: "Anti-Fouling Treatment",
+        lineItems: [
+          { description: "Haul-out and blocking", quantity: 1, unitPrice: 0 },
+          { description: "Hull pressure wash", quantity: 1, unitPrice: 0 },
+          { description: "Sanding and surface preparation", quantity: 1, unitPrice: 0 },
+          { description: "Anti-fouling paint application (2 coats)", quantity: 1, unitPrice: 0 },
+        ]
+      },
+      {
+        id: "custom",
+        name: "Custom Service (Start Blank)",
+        lineItems: [
+          { description: "", quantity: 1, unitPrice: 0 },
+        ]
+      },
+    ],
     invoiceTypes: [
       {
         id: "boatclinic",

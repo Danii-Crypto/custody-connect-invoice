@@ -4,11 +4,15 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Client or company name"
+      "description": "Vessel owner or company name"
     },
     "email": {
       "type": "string",
-      "description": "Client email address"
+      "description": "Owner email address"
+    },
+    "vessel_name": {
+      "type": "string",
+      "description": "Name of the vessel/boat"
     },
     "addr1": {
       "type": "string",
