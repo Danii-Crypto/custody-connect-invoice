@@ -14,7 +14,8 @@
       "type": "string",
       "enum": [
         "custody",
-        "connect"
+        "connect",
+        "boatclinic"
       ],
       "description": "Type of invoice"
     },

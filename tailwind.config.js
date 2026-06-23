@@ -2,6 +2,7 @@
 module.exports = {
   darkMode: ['class'],
   content: [
+    './index.html',
     './src/**/*.{js,jsx,ts,tsx}',
     './components/**/*.{js,jsx,ts,tsx}',
     './pages/**/*.{js,jsx,ts,tsx}',
@@ -15,17 +16,11 @@ module.exports = {
       },
     },
     extend: {
-
       fontFamily: {
-
-        heading: ['"Arial"', 'sans-serif'],
-
-
-        body: ['"Arial"', 'sans-serif'],
-        sans: ['"Arial"', 'sans-serif'],
-
+        heading: ['"Inter"', 'sans-serif'],
+        body: ['"Inter"', 'sans-serif'],
+        sans: ['"Inter"', 'sans-serif'],
       },
-
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
