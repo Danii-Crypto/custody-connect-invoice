@@ -8,7 +8,7 @@ export const businessProfiles = {
   alessa: {
     id: "alessa",
     name: "Alessa's Boat Clinic",
-    logoUrl: "https://media.base44.com/images/public/6a049f1fdb040b9d18c5bf50/b400a6da5_AllessasBoatClinicNOBG.jpg",
+    logoUrl: "https://media.base44.com/images/public/6a049f1fdb040b9d18c5bf50/62006a35d_AllessasBoatClinic-BG.jpg",
     companyName: "ALESSA'S BOAT CLINIC FOUNDATION LIMITED",
     companyAddr1: "LOWER BRYAN'S BAY",
     companyAddr2: "NORWICH DISTRICT, PORTLAND",

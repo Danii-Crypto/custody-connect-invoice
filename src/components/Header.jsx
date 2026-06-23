@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Anchor, Ship, Layers, HelpCircle, Moon, Sun, BarChart3 } from "lucide-react";
+import { Ship, Layers, HelpCircle, Moon, Sun, BarChart3 } from "lucide-react";
 import { getTheme, setTheme } from "@/lib/theme";
 
 export default function Header() {
@@ -17,9 +17,7 @@ export default function Header() {
     <header className="bg-card border-b border-border shadow-sm sticky top-0 z-50 print:hidden">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="bg-primary/10 p-1.5 rounded-lg group-hover:bg-primary/20 transition-colors">
-            <Anchor className="h-4 w-4 text-primary" />
-          </div>
+          <img src="https://media.base44.com/images/public/6a049f1fdb040b9d18c5bf50/62006a35d_AllessasBoatClinic-BG.jpg" alt="Alessa's Boat Clinic" className="h-10 w-auto rounded-lg object-cover" />
           <span className="font-bold text-base text-foreground tracking-tight">
             Boat Clinic Invoices
           </span>
