@@ -29,7 +29,7 @@ export default function Home() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} className="bg-card rounded-2xl shadow-2xl border border-border/40 overflow-hidden print:shadow-none print:border-none print:rounded-none">
           <div className="print-hidden p-10 pb-0">
             <div className="flex flex-col items-center text-center mb-10">
-              <img src={profile.logoUrl} alt="Alessa's Boat Clinic" className="h-28 w-auto object-contain mx-auto mb-4 rounded-2xl" onError={e => { e.target.style.display = 'none'; }} />
+              <img src={profile.logoUrl} alt="Alessa's Boat Clinic" className="h-56 w-auto object-contain mx-auto mb-4 rounded-2xl" onError={e => { e.target.style.display = 'none'; }} />
               <h1 className="text-5xl font-black tracking-tight text-foreground">Boat Clinic Invoicing</h1>
               <p className="text-base text-muted-foreground mt-2 font-medium">Professional vessel service billing — streamlined</p>
             </div>
