@@ -322,25 +322,30 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
                       </SelectContent>
                     </Select>
                   )}
-                  <div className="space-y-1 px-1 text-xs font-semibold text-muted-foreground">
-                    <div>Description</div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-14 text-center">Qty</div>
-                      <div className="flex-1 text-right">Price ($)</div>
-                      <div className="flex-1 text-right">Total</div>
-                      <div className="w-7" />
-                    </div>
-                  </div>
                   {(temp.lineItems || []).map((item, idx) => (
-                    <div key={idx} className="space-y-1 py-1 border-b border-border/40 last:border-0">
-                      <Input placeholder="Service description" value={item.description} onChange={e => updateLine(idx, "description", e.target.value)} className="h-9 text-sm w-full" />
-                      <div className="flex items-center gap-2">
-                        <Input type="number" value={item.quantity} onChange={e => updateLine(idx, "quantity", e.target.value)} className="w-14 h-9 text-sm text-center shrink-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                        <Input type="number" value={item.unitPrice} onChange={e => updateLine(idx, "unitPrice", e.target.value)} className="flex-1 h-9 text-sm text-right shrink-0 min-w-0 pr-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                        <div className="flex-1 text-right text-sm font-bold text-foreground py-1 shrink-0 min-w-0">{formatCurrency(Number(item.quantity) * Number(item.unitPrice))}</div>
-                        <button type="button" onClick={() => removeLine(idx)} className="w-7 flex items-center justify-center h-9 text-destructive hover:bg-destructive/10 rounded transition-colors shrink-0">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                    <div key={idx} className="space-y-3 py-3 border-b border-border/40 last:border-0">
+                      <div>
+                        <Label className="text-xs text-muted-foreground mb-1 block">Service Description</Label>
+                        <Input placeholder="Service description" value={item.description} onChange={e => updateLine(idx, "description", e.target.value)} className="h-9 text-sm w-full" />
+                      </div>
+                      <div className="grid grid-cols-3 gap-3 items-end">
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1 block">Qty</Label>
+                          <Input type="number" value={item.quantity} onChange={e => updateLine(idx, "quantity", e.target.value)} className="h-9 text-sm text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1 block">Price ($)</Label>
+                          <Input type="number" value={item.unitPrice} onChange={e => updateLine(idx, "unitPrice", e.target.value)} className="h-9 text-sm text-right pr-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                        </div>
+                        <div className="flex items-end justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <Label className="text-xs text-muted-foreground mb-1 block">Total</Label>
+                            <div className="h-9 flex items-center justify-end text-sm font-bold text-foreground pr-2">{formatCurrency(Number(item.quantity) * Number(item.unitPrice))}</div>
+                          </div>
+                          <button type="button" onClick={() => removeLine(idx)} className="h-9 w-9 flex items-center justify-center text-destructive hover:bg-destructive/10 rounded transition-colors shrink-0">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
