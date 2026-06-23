@@ -1,11 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Ship, Layers, HelpCircle, Moon, Sun, BarChart3 } from "lucide-react";
+import { Ship, Layers, HelpCircle, Moon, Sun, BarChart3, Users, LogOut } from "lucide-react";
 import { getTheme, setTheme } from "@/lib/theme";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function Header() {
   const location = useLocation();
+  const { user, logout } = useAuth();
   const [dark, setDark] = useState(() => getTheme() === "dark");
+  const isAdmin = user?.role === "admin";
 
   function toggleTheme() {
     const next = dark ? "light" : "dark";
@@ -67,12 +70,32 @@ export default function Header() {
             <HelpCircle className="h-4 w-4" />
             Help
           </Link>
+          {isAdmin && (
+            <Link
+              to="/users"
+              className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
+                location.pathname === "/users"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+              }`}
+            >
+              <Users className="h-4 w-4" />
+              Users
+            </Link>
+          )}
           <button
             onClick={toggleTheme}
             className="ml-1 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             title={dark ? "Switch to light mode" : "Switch to dark mode"}
           >
             {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+          <button
+            onClick={() => logout()}
+            className="ml-1 p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            title="Log out"
+          >
+            <LogOut className="h-4 w-4" />
           </button>
         </div>
       </div>

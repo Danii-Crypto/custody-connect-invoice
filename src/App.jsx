@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -13,6 +13,8 @@ import BulkInvoice from './pages/BulkInvoice';
 import HowToUse from './pages/HowToUse.jsx';
 import Reports from './pages/Reports';
 import Layout from './components/Layout';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import UserManagement from './pages/UserManagement';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -37,15 +39,18 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/clients" element={<Clients />} />
-        <Route path="/bulk" element={<BulkInvoice />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/how-to-use" element={<HowToUse />} />
-        <Route path="/Login" element={<Login />} />
-        <Route path="/ResetPassword" element={<ResetPassword />} />
-        {/* Add your page Route elements here */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/clients" element={<Clients />} />
+          <Route path="/bulk" element={<BulkInvoice />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/how-to-use" element={<HowToUse />} />
+          <Route path="/users" element={<UserManagement />} />
+          {/* Add your page Route elements here */}
+        </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

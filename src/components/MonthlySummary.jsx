@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { FileText, DollarSign, RefreshCw, Trash2 } from "lucide-react";
 
 function formatCurrency(val) {
@@ -11,6 +12,8 @@ export default function MonthlySummary() {
   const now = new Date();
   const monthLabel = now.toLocaleString("default", { month: "long", year: "numeric" });
   const qc = useQueryClient();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [showReset, setShowReset] = useState(false);
   const [resetting, setResetting] = useState(false);
 
@@ -52,7 +55,7 @@ export default function MonthlySummary() {
   return (
     <div className="mb-6">
     <div className="flex justify-end items-center gap-3 mb-2">
-      {showReset && (
+      {showReset && isAdmin && (
         <button
           onClick={handleReset}
           disabled={resetting}
