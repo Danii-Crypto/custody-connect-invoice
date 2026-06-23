@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Ship, Layers, HelpCircle, Moon, Sun, BarChart3, Users, LogOut } from "lucide-react";
+import { Ship, HelpCircle, Moon, Sun, BarChart3, Users, LogOut } from "lucide-react";
 import { getTheme, setTheme } from "@/lib/theme";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -37,18 +37,7 @@ export default function Header() {
             <Ship className="h-4 w-4" />
             Owners
           </Link>
-          <Link
-            to="/bulk"
-            className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
-              location.pathname === "/bulk"
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-            }`}
-          >
-            <Layers className="h-4 w-4" />
-            Fleet Invoicing
-          </Link>
-          <Link
+<Link
             to="/reports"
             className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
               location.pathname === "/reports"
