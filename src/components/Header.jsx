@@ -20,8 +20,8 @@ export default function Header() {
           <div className="bg-primary/10 p-1.5 rounded-lg group-hover:bg-primary/20 transition-colors">
             <FileText className="h-4 w-4 text-primary" />
           </div>
-          <span className="font-bold text-base text-foreground tracking-tight" style={{ fontFamily: 'Arial, system-ui, sans-serif' }}>
-            Invoice Generator
+          <span className="font-bold text-base text-foreground tracking-tight">
+            Boat Clinic Invoices
           </span>
         </Link>
         <div className="flex items-center gap-1">

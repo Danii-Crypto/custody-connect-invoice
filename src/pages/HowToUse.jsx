@@ -20,7 +20,7 @@ export default function HowToUse() {
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-foreground">
             <p>1. <strong>Add Clients (Optional but Recommended):</strong> Go to the "Clients" tab to create and save client information for quick access later. You can also enter client details manually in each invoice.</p>
-            <p>2. <strong>Create Your First Invoice:</strong> Return to the home page. Choose between "Custody Invoice" (for single-line service fees) or "Connect Partner Invoice" (for detailed multi-line billing).</p>
+            <p>2. <strong>Create Your First Invoice:</strong> Return to the home page. The Boat Clinic Invoice uses a line-item format — add as many service line items as you need with descriptions, quantities, and unit prices.</p>
             <p>3. <strong>Fill in the Details:</strong> Click the "Edit" button to open the form. Select or create a client, add your company info, set dates, and configure pricing. Your changes update the preview instantly.</p>
             <p>4. <strong>Download as PDF:</strong> Once you're happy with the invoice, click "Download PDF" to save it to your device. It's automatically added to your invoice history.</p>
             <p>5. <strong>Create More Invoices:</strong> Need to invoice multiple clients? Use "Bulk Generate" to create invoices for several clients at once.</p>
@@ -38,8 +38,7 @@ export default function HowToUse() {
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
               <div>
-                <p className="text-foreground mb-2"><strong>Custody Invoice:</strong> Perfect for straightforward service fees with a single line item.</p>
-                <p className="text-foreground"><strong>Connect Partner Invoice:</strong> Ideal for detailed billing with multiple line items.</p>
+                <p className="text-foreground"><strong>Boat Clinic Invoice:</strong> A flexible line-item invoice format — add as many service items as you need, each with its own description, quantity, and unit price.</p>
               </div>
               <div className="bg-secondary/20 p-4 rounded border border-border space-y-3 text-xs text-muted-foreground">
                 <p><strong>How to Create an Invoice:</strong></p>

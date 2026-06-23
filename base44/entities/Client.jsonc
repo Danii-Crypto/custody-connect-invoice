@@ -6,16 +6,6 @@
       "type": "string",
       "description": "Client or company name"
     },
-    "client_type": {
-      "type": "string",
-      "enum": [
-        "custody",
-        "connect",
-        "both"
-      ],
-      "default": "custody",
-      "description": "Type of invoice this client uses"
-    },
     "addr1": {
       "type": "string",
       "description": "Address line 1"

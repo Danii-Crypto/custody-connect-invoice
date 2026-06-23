@@ -265,8 +265,8 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
                 <div>Date: <span className="text-foreground font-medium">{formatDate(h.invoice_date)}</span></div>
                 {h.due_date && <div>Due: <span className="text-foreground font-medium">{formatDate(h.due_date)}</span></div>}
               </div>
-              <Badge variant="outline" className={h.invoice_type === "custody" ? "border-primary text-primary" : "border-accent text-accent"}>
-                {h.invoice_type === "custody" ? "Custody" : "Connect"}
+              <Badge variant="outline" className="border-accent text-accent capitalize">
+                {h.invoice_type}
               </Badge>
               <div className="font-bold text-primary text-sm">{formatCurrency(h.amount)}</div>
             </div>

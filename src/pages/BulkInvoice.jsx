@@ -4,65 +4,39 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Layers, Download, Loader2, Check, ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { Layers, Download, Loader2, ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { businessProfiles } from "@/lib/businessProfiles";
+import { formatDate, generateInvoiceNumber, formatCurrency, formatFileDate } from "@/lib/invoiceUtils";
 
-function formatDate(dateStr) {
-  if (!dateStr) return "";
-  const [y, m, d] = dateStr.split("-");
-  return `${m}/${d}/${y}`;
-}
-function generateInvoiceNumber(prefix, dateStr) {
-  const d = new Date(dateStr || Date.now());
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  return `${prefix} - ${dd}${mm}${yyyy}`;
-}
-
+const profile = businessProfiles.alessa;
+const invoiceConfig = profile.invoiceTypes[0];
 const today = new Date().toISOString().split("T")[0];
 const dueDefault = new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
 
-const defaultCustodyShared = {
-  prefix: "RD",
+const defaultShared = {
+  prefix: invoiceConfig.prefix,
   invoiceDate: today,
   dueDate: dueDefault,
-  companyAddr1: "1712 Pioneer Avenue Suite 135",
-  companyAddr2: "Cheyenne, WY 82001",
-  companyPhone: "(424) 277-0535",
-  serviceDescription: "Custody Fee",
-  quantity: 1,
-  unitPrice: 500.00,
-  paymentNotice: "Your sFOX account will be charged by the due date. Please ensure there are sufficient funds available to cover the charges.",
-  contactEmail: "clientservices@sfox.com",
+  companyName: profile.companyName,
+  companyAddr1: profile.companyAddr1,
+  companyAddr2: profile.companyAddr2,
+  companyPhone: profile.companyPhone,
+  logoUrl: profile.logoUrl,
+  contactEmail: profile.contactEmail,
+  paymentNotice: invoiceConfig.paymentNotice,
+  lineItems: invoiceConfig.lineItems.map(i => ({ ...i })),
 };
 
-const defaultConnectShared = {
-  prefix: "ON",
-  invoiceDate: today,
-  dueDate: dueDefault,
-  serviceMonth: "November",
-  companyAddr1: "1712 Pioneer Avenue Suite 135",
-  companyAddr2: "Cheyenne, WY 82001",
-  companyPhone: "(424) 277-0535",
-  paymentNotice: "Your sFOX account will be charged by the due date. Please ensure there are sufficient funds available to cover the charges. Note that if the account lacks the necessary balance for the outstanding amount, this will result in an automatic suspension of access to Connect services.",
-  contactEmail: "clientservices@sfox.com",
-};
-
-const defaultLineItems = [
-  { description: "Monthly Platform Fee", quantity: 1, unitPrice: 10000 },
-];
+const defaultLineItems = invoiceConfig.lineItems.map(i => ({ ...i }));
 
 export default function BulkInvoice() {
   const { toast } = useToast();
-  const [invoiceType, setInvoiceType] = useState("custody");
-  const [sharedCustody, setSharedCustody] = useState({ ...defaultCustodyShared });
-  const [sharedConnect, setSharedConnect] = useState({ ...defaultConnectShared });
+  const [shared, setShared] = useState({ ...defaultShared });
   const [selectedClients, setSelectedClients] = useState([]);
-  const [clientOverrides, setClientOverrides] = useState({}); // id -> { unitPrice } for custody or { lineItems } for connect
+  const [clientOverrides, setClientOverrides] = useState({});
   const [expandedClient, setExpandedClient] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
@@ -73,13 +47,6 @@ export default function BulkInvoice() {
     queryFn: () => base44.entities.Client.list("-created_date"),
   });
 
-  // Filter clients by invoice type
-  const filteredClients = clients.filter(c => {
-    if (invoiceType === "custody") return !c.client_type || c.client_type === "custody" || c.client_type === "both";
-    if (invoiceType === "connect") return !c.client_type || c.client_type === "connect" || c.client_type === "both";
-    return true;
-  });
-
   function toggleClient(c) {
     setSelectedClients(prev =>
       prev.find(x => x.id === c.id) ? prev.filter(x => x.id !== c.id) : [...prev, c]
@@ -87,8 +54,8 @@ export default function BulkInvoice() {
   }
 
   function toggleAll() {
-    if (selectedClients.length === filteredClients.length) setSelectedClients([]);
-    else setSelectedClients([...filteredClients]);
+    if (selectedClients.length === clients.length) setSelectedClients([]);
+    else setSelectedClients([...clients]);
   }
 
   function getOverride(clientId) {
@@ -108,31 +75,16 @@ export default function BulkInvoice() {
       const override = getOverride(client.id);
       setProgress({ current: i + 1, total: selectedClients.length });
 
-      // Build invoice data for this client
-      let invoiceData;
-      if (invoiceType === "custody") {
-        invoiceData = {
-          ...sharedCustody,
-          clientName: client.name,
-          clientAddr1: client.addr1 || "",
-          clientAddr2: client.addr2 || "",
-          clientCountry: client.country || "",
-          unitPrice: override.unitPrice !== undefined ? override.unitPrice : sharedCustody.unitPrice,
-        };
-      } else {
-        invoiceData = {
-          ...sharedConnect,
-          clientName: client.name,
-          clientAddr1: client.addr1 || "",
-          clientAddr2: client.addr2 || "",
-          clientCountry: client.country || "",
-          lineItems: override.lineItems || defaultLineItems,
-        };
-      }
+      const invoiceData = {
+        ...shared,
+        clientName: client.name,
+        clientAddr1: client.addr1 || "",
+        clientAddr2: client.addr2 || "",
+        clientCountry: client.country || "",
+        lineItems: override.lineItems || defaultLineItems,
+      };
 
-      // Render to hidden div, capture, save PDF
-      await renderAndDownload(invoiceData, invoiceType, renderRef);
-      // small delay between renders
+      await renderAndDownload(invoiceData, renderRef);
       await new Promise(r => setTimeout(r, 300));
     }
 
@@ -142,11 +94,9 @@ export default function BulkInvoice() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hidden render area */}
       <div ref={renderRef} style={{ position: "fixed", left: "-9999px", top: 0, width: "850px", background: "#fff", zIndex: -1 }} />
 
       <div className="max-w-5xl mx-auto px-4 py-10">
-        {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <div className="bg-primary/10 p-2 rounded-lg">
             <Layers className="h-5 w-5 text-primary" />
@@ -165,83 +115,54 @@ export default function BulkInvoice() {
 
               <div className="space-y-3">
                 <div>
-                  <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Invoice Type</Label>
-                  <Select value={invoiceType} onValueChange={v => { setInvoiceType(v); setSelectedClients([]); }}>
-                    <SelectTrigger className="h-9 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="custody">Custody Invoice</SelectItem>
-                      <SelectItem value="connect">Connect Partner Invoice</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
                   <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Invoice Prefix</Label>
-                  <Input
-                    value={invoiceType === "custody" ? sharedCustody.prefix : sharedConnect.prefix}
-                    onChange={e => invoiceType === "custody" ? setSharedCustody(p => ({ ...p, prefix: e.target.value })) : setSharedConnect(p => ({ ...p, prefix: e.target.value }))}
-                    className="h-9 text-sm"
-                  />
+                  <Input value={shared.prefix} onChange={e => setShared(p => ({ ...p, prefix: e.target.value }))} className="h-9 text-sm" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Invoice Date</Label>
-                    <Input
-                      type="date"
-                      value={invoiceType === "custody" ? sharedCustody.invoiceDate : sharedConnect.invoiceDate}
-                      onChange={e => invoiceType === "custody" ? setSharedCustody(p => ({ ...p, invoiceDate: e.target.value })) : setSharedConnect(p => ({ ...p, invoiceDate: e.target.value }))}
-                      className="h-9 text-sm"
-                    />
+                    <Input type="date" value={shared.invoiceDate} onChange={e => setShared(p => ({ ...p, invoiceDate: e.target.value }))} className="h-9 text-sm" />
                   </div>
                   <div>
                     <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Due Date</Label>
-                    <Input
-                      type="date"
-                      value={invoiceType === "custody" ? sharedCustody.dueDate : sharedConnect.dueDate}
-                      onChange={e => invoiceType === "custody" ? setSharedCustody(p => ({ ...p, dueDate: e.target.value })) : setSharedConnect(p => ({ ...p, dueDate: e.target.value }))}
-                      className="h-9 text-sm"
-                    />
+                    <Input type="date" value={shared.dueDate} onChange={e => setShared(p => ({ ...p, dueDate: e.target.value }))} className="h-9 text-sm" />
                   </div>
                 </div>
 
-                {invoiceType === "custody" && (
-                  <>
-                    <div>
-                      <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Service Description</Label>
-                      <Input value={sharedCustody.serviceDescription} onChange={e => setSharedCustody(p => ({ ...p, serviceDescription: e.target.value }))} className="h-9 text-sm" />
-                    </div>
-                    <div>
-                      <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Default Unit Price ($)</Label>
-                      <Input type="number" value={sharedCustody.unitPrice} onChange={e => setSharedCustody(p => ({ ...p, unitPrice: e.target.value }))} className="h-9 text-sm" />
-                    </div>
-                  </>
-                )}
-
-                {invoiceType === "connect" && (
-                  <div>
-                    <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Service Month</Label>
-                    <Select value={sharedConnect.serviceMonth} onValueChange={v => setSharedConnect(p => ({ ...p, serviceMonth: v }))}>
-                      <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {["January","February","March","April","May","June","July","August","September","October","November","December"].map(m => (
-                          <SelectItem key={m} value={m}>{m}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <div>
+                  <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Default Line Items</Label>
+                  <div className="space-y-2">
+                    {shared.lineItems.map((item, idx) => (
+                      <div key={idx} className="grid grid-cols-12 gap-2 items-end">
+                        <div className="col-span-6">
+                          {idx === 0 && <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Description</Label>}
+                          <Input value={item.description} onChange={e => { const items = [...shared.lineItems]; items[idx] = { ...items[idx], description: e.target.value }; setShared(p => ({ ...p, lineItems: items })); }} className="h-8 text-sm" />
+                        </div>
+                        <div className="col-span-2">
+                          {idx === 0 && <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Qty</Label>}
+                          <Input type="number" value={item.quantity} onChange={e => { const items = [...shared.lineItems]; items[idx] = { ...items[idx], quantity: Number(e.target.value) }; setShared(p => ({ ...p, lineItems: items })); }} className="h-8 text-sm text-center" />
+                        </div>
+                        <div className="col-span-3">
+                          {idx === 0 && <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Price ($)</Label>}
+                          <Input type="number" value={item.unitPrice} onChange={e => { const items = [...shared.lineItems]; items[idx] = { ...items[idx], unitPrice: Number(e.target.value) }; setShared(p => ({ ...p, lineItems: items })); }} className="h-8 text-sm text-right" />
+                        </div>
+                        <div className="col-span-1">
+                          <button onClick={() => setShared(p => ({ ...p, lineItems: p.lineItems.filter((_, i) => i !== idx) }))} className="h-8 w-8 flex items-center justify-center text-destructive hover:bg-destructive/10 rounded">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    <button onClick={() => setShared(p => ({ ...p, lineItems: [...p.lineItems, { description: "", quantity: 1, unitPrice: 0 }] }))} className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
+                      <Plus className="h-3 w-3" /> Add line
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
-            {/* Generate Button */}
-            <Button
-              onClick={generateAll}
-              disabled={!selectedClients.length || generating}
-              className="w-full bg-primary text-white hover:bg-primary/90 h-11 text-sm font-semibold"
-            >
+            <Button onClick={generateAll} disabled={!selectedClients.length || generating} className="w-full bg-primary text-white hover:bg-primary/90 h-11 text-sm font-semibold">
               {generating ? (
                 <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating {progress.current}/{progress.total}…</>
               ) : (
@@ -254,19 +175,19 @@ export default function BulkInvoice() {
           <div className="lg:col-span-2">
             <div className="bg-card border border-border rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold text-foreground">Select Clients ({selectedClients.length}/{filteredClients.length})</h2>
+                <h2 className="text-sm font-bold text-foreground">Select Clients ({selectedClients.length}/{clients.length})</h2>
                 <button onClick={toggleAll} className="text-xs text-primary hover:underline font-medium">
-                  {selectedClients.length === filteredClients.length && filteredClients.length > 0 ? "Deselect All" : "Select All"}
+                  {selectedClients.length === clients.length && clients.length > 0 ? "Deselect All" : "Select All"}
                 </button>
               </div>
 
               {isLoading ? (
                 <div className="text-center text-muted-foreground py-8 text-sm">Loading clients…</div>
-              ) : filteredClients.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8 text-sm">No {invoiceType} clients found. Add clients on the Clients page first.</div>
+              ) : clients.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8 text-sm">No clients yet. Add clients on the Clients page first.</div>
               ) : (
                 <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-                  {filteredClients.map(c => {
+                  {clients.map(c => {
                     const selected = !!selectedClients.find(x => x.id === c.id);
                     const override = getOverride(c.id);
                     const expanded = expandedClient === c.id;
@@ -287,87 +208,35 @@ export default function BulkInvoice() {
                           )}
                         </div>
 
-                        {/* Per-client overrides */}
                         {selected && expanded && (
                           <div className="px-4 pb-4 border-t border-border pt-3 bg-card/50 rounded-b-lg">
-                            <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Override for {c.name}</p>
-                            {invoiceType === "custody" ? (
-                              <div>
-                                <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Unit Price ($)</Label>
-                                <Input
-                                  type="number"
-                                  placeholder={sharedCustody.unitPrice}
-                                  value={override.unitPrice !== undefined ? override.unitPrice : ""}
-                                  onChange={e => setOverride(c.id, { unitPrice: e.target.value === "" ? undefined : Number(e.target.value) })}
-                                  className="h-8 text-sm w-40"
-                                />
-                              </div>
-                            ) : (
-                              <div className="space-y-2">
-                                {(override.lineItems || defaultLineItems).map((item, idx) => (
-                                  <div key={idx} className="grid grid-cols-12 gap-2 items-end">
-                                    <div className="col-span-6">
-                                      {idx === 0 && <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Description</Label>}
-                                      <Input
-                                        value={item.description}
-                                        onChange={e => {
-                                          const items = [...(override.lineItems || defaultLineItems)];
-                                          items[idx] = { ...items[idx], description: e.target.value };
-                                          setOverride(c.id, { lineItems: items });
-                                        }}
-                                        className="h-8 text-sm"
-                                      />
-                                    </div>
-                                    <div className="col-span-2">
-                                      {idx === 0 && <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Qty</Label>}
-                                      <Input
-                                        type="number"
-                                        value={item.quantity}
-                                        onChange={e => {
-                                          const items = [...(override.lineItems || defaultLineItems)];
-                                          items[idx] = { ...items[idx], quantity: Number(e.target.value) };
-                                          setOverride(c.id, { lineItems: items });
-                                        }}
-                                        className="h-8 text-sm text-center"
-                                      />
-                                    </div>
-                                    <div className="col-span-3">
-                                      {idx === 0 && <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Price ($)</Label>}
-                                      <Input
-                                        type="number"
-                                        value={item.unitPrice}
-                                        onChange={e => {
-                                          const items = [...(override.lineItems || defaultLineItems)];
-                                          items[idx] = { ...items[idx], unitPrice: Number(e.target.value) };
-                                          setOverride(c.id, { lineItems: items });
-                                        }}
-                                        className="h-8 text-sm text-right"
-                                      />
-                                    </div>
-                                    <div className="col-span-1">
-                                      <button
-                                        onClick={() => {
-                                          const items = (override.lineItems || defaultLineItems).filter((_, i) => i !== idx);
-                                          setOverride(c.id, { lineItems: items });
-                                        }}
-                                        className="h-8 w-8 flex items-center justify-center text-destructive hover:bg-destructive/10 rounded"
-                                      >
-                                        <Trash2 className="h-3.5 w-3.5" />
-                                      </button>
-                                    </div>
+                            <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Override line items for {c.name}</p>
+                            <div className="space-y-2">
+                              {(override.lineItems || defaultLineItems).map((item, idx) => (
+                                <div key={idx} className="grid grid-cols-12 gap-2 items-end">
+                                  <div className="col-span-6">
+                                    {idx === 0 && <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Description</Label>}
+                                    <Input value={item.description} onChange={e => { const items = [...(override.lineItems || defaultLineItems)]; items[idx] = { ...items[idx], description: e.target.value }; setOverride(c.id, { lineItems: items }); }} className="h-8 text-sm" />
                                   </div>
-                                ))}
-                                <button
-                                  onClick={() => {
-                                    const items = [...(override.lineItems || defaultLineItems), { description: "", quantity: 1, unitPrice: 0 }];
-                                    setOverride(c.id, { lineItems: items });
-                                  }}
-                                  className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
-                                >
-                                  <Plus className="h-3 w-3" /> Add line
-                                </button>
-                              </div>
-                            )}
+                                  <div className="col-span-2">
+                                    {idx === 0 && <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Qty</Label>}
+                                    <Input type="number" value={item.quantity} onChange={e => { const items = [...(override.lineItems || defaultLineItems)]; items[idx] = { ...items[idx], quantity: Number(e.target.value) }; setOverride(c.id, { lineItems: items }); }} className="h-8 text-sm text-center" />
+                                  </div>
+                                  <div className="col-span-3">
+                                    {idx === 0 && <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Price ($)</Label>}
+                                    <Input type="number" value={item.unitPrice} onChange={e => { const items = [...(override.lineItems || defaultLineItems)]; items[idx] = { ...items[idx], unitPrice: Number(e.target.value) }; setOverride(c.id, { lineItems: items }); }} className="h-8 text-sm text-right" />
+                                  </div>
+                                  <div className="col-span-1">
+                                    <button onClick={() => { const items = (override.lineItems || defaultLineItems).filter((_, i) => i !== idx); setOverride(c.id, { lineItems: items }); }} className="h-8 w-8 flex items-center justify-center text-destructive hover:bg-destructive/10 rounded">
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                              <button onClick={() => { const items = [...(override.lineItems || defaultLineItems), { description: "", quantity: 1, unitPrice: 0 }]; setOverride(c.id, { lineItems: items }); }} className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
+                                <Plus className="h-3 w-3" /> Add line
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -383,18 +252,11 @@ export default function BulkInvoice() {
   );
 }
 
-async function renderAndDownload(invoiceData, type, containerRef) {
-  const sfoxLogoUrl = "https://media.base44.com/images/public/6a049f1fdb040b9d18c5bf50/f444be89d_images_squarespace-cdn_com_sFOX_Logo_RGB_Navy_de6c2b39.png";
+async function renderAndDownload(invoiceData, containerRef) {
   const invoiceNum = generateInvoiceNumber(invoiceData.prefix, invoiceData.invoiceDate);
+  const total = (invoiceData.lineItems || []).reduce((s, i) => s + Number(i.quantity) * Number(i.unitPrice), 0);
 
-  const total = type === "custody"
-    ? Number(invoiceData.quantity) * Number(invoiceData.unitPrice)
-    : (invoiceData.lineItems || []).reduce((s, i) => s + Number(i.quantity) * Number(i.unitPrice), 0);
-
-  const formatCurrency = (v) => "$" + Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-  // Build HTML string for the invoice
-  const html = buildInvoiceHtml(invoiceData, type, sfoxLogoUrl, invoiceNum, total, formatCurrency, formatDate);
+  const html = buildInvoiceHtml(invoiceData, invoiceNum, total);
   containerRef.current.innerHTML = html;
   await new Promise(r => setTimeout(r, 200));
 
@@ -414,40 +276,58 @@ async function renderAndDownload(invoiceData, type, containerRef) {
     pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
     heightLeft -= pageHeight;
   }
-  pdf.save(`${invoiceNum.replace(/\s/g, "_")}_${invoiceData.clientName.replace(/\s/g, "_")}.pdf`);
+  const clientName = (invoiceData.clientName || "Client").replace(/[/\\?%*:|"<>]/g, "-");
+  const dateStr = formatFileDate(invoiceData.invoiceDate);
+  pdf.save(`Boat_Clinic_Invoice_${clientName}_${dateStr}.pdf`);
   containerRef.current.innerHTML = "";
+
+  base44.entities.InvoiceHistory.create({
+    client_name: invoiceData.clientName || "",
+    invoice_type: "boatclinic",
+    invoice_number: invoiceNum,
+    invoice_date: invoiceData.invoiceDate || "",
+    due_date: invoiceData.dueDate || "",
+    amount: total,
+    file_name: `Boat_Clinic_Invoice_${clientName}_${dateStr}.pdf`,
+  });
 }
 
-function buildInvoiceHtml(d, type, logoUrl, invoiceNum, total, fc, fd) {
+function buildInvoiceHtml(d, invoiceNum, total) {
+  const fc = (v) => "$" + Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fd = formatDate;
+  const primaryColor = "#1565c0";
   const rowsBg = "#f8fafc";
-  const primaryColor = "#0091ff";
-  const title = type === "custody" ? "CUSTODY INVOICE" : "CONNECT INVOICE";
 
-  const tableRows = type === "custody"
-    ? `<tr style="background:${rowsBg}">
-        <td style="padding:12px 16px;font-weight:500">${d.serviceDescription}</td>
-        <td style="padding:12px 16px;text-align:center">${d.quantity}</td>
-        <td style="padding:12px 16px;text-align:right">${fc(d.unitPrice)}</td>
-        <td style="padding:12px 16px;text-align:right;font-weight:700">${fc(Number(d.quantity) * Number(d.unitPrice))}</td>
-      </tr>`
-    : (d.lineItems || []).map((item, i) => `
-        <tr style="background:${i % 2 === 0 ? rowsBg : "#fff"}">
-          <td style="padding:12px 16px;font-weight:500">${item.description}</td>
-          <td style="padding:12px 16px;text-align:center">${item.quantity}</td>
-          <td style="padding:12px 16px;text-align:right">${fc(item.unitPrice)}</td>
-          <td style="padding:12px 16px;text-align:right;font-weight:700">${fc(Number(item.quantity) * Number(item.unitPrice))}</td>
-        </tr>`).join("");
+  const bankHtml = profile.bankDetails ? `
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b;margin-bottom:8px">Payment Details:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 32px;font-size:13px;color:#111">
+        <div><span style="color:#64748b">Bank:</span> ${profile.bankDetails.bank}</div>
+        <div><span style="color:#64748b">Branch:</span> ${profile.bankDetails.branch}</div>
+        <div><span style="color:#64748b">Account Name:</span> ${profile.bankDetails.accountName}</div>
+        <div><span style="color:#64748b">Account Type:</span> ${profile.bankDetails.accountType}</div>
+        <div style="grid-column:1/3"><span style="color:#64748b">Account Number:</span> ${profile.bankDetails.accountNumber}</div>
+      </div>
+    </div>` : "";
+
+  const tableRows = (d.lineItems || []).map((item, i) => `
+    <tr style="background:${i % 2 === 0 ? rowsBg : "#fff"}">
+      <td style="padding:12px 16px;font-weight:500">${item.description}</td>
+      <td style="padding:12px 16px;text-align:center">${item.quantity}</td>
+      <td style="padding:12px 16px;text-align:right">${fc(item.unitPrice)}</td>
+      <td style="padding:12px 16px;text-align:right;font-weight:700">${fc(Number(item.quantity) * Number(item.unitPrice))}</td>
+    </tr>`).join("");
 
   return `
-    <div style="font-family:Arial,sans-serif;font-size:14px;color:#111;background:#fff;padding:40px;width:850px">
+    <div style="font-family:Inter,Arial,sans-serif;font-size:14px;color:#111;background:#fff;padding:40px;width:850px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #e2e8f0;padding-bottom:24px;margin-bottom:24px">
         <div>
-          <img src="${logoUrl}" alt="sFOX" style="height:40px;margin-bottom:12px" />
-          <div style="font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px">sFOX Inc &amp; affiliates</div>
-          <div style="font-size:12px;color:#64748b;line-height:1.6;margin-top:4px">${d.companyAddr1}<br/>${d.companyAddr2}<br/>${d.companyPhone}</div>
+          <img src="${d.logoUrl}" alt="Alessa's Boat Clinic" style="height:56px;margin-bottom:12px" />
+          <div style="font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px">${d.companyName}</div>
+          <div style="font-size:12px;color:#64748b;line-height:1.6;margin-top:4px">${d.companyAddr1}${d.companyAddr1 ? "<br/>" : ""}${d.companyAddr2}<br/>${d.companyPhone}</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:2px;border-bottom:2px solid #e2e8f0;padding-bottom:8px;margin-bottom:12px">${title}</div>
+          <div style="font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:2px;border-bottom:2px solid #e2e8f0;padding-bottom:8px;margin-bottom:12px">Boat Clinic Invoice</div>
           <div style="font-size:13px;color:#64748b;margin-bottom:4px">Invoice Number: <strong style="color:#111">${invoiceNum}</strong></div>
           <div style="font-size:13px;color:#64748b;margin-bottom:4px">Date: <strong style="color:#111">${fd(d.invoiceDate)}</strong></div>
           <div style="font-size:13px;color:#64748b">Due Date: <strong style="color:#111">${fd(d.dueDate)}</strong></div>
@@ -456,7 +336,7 @@ function buildInvoiceHtml(d, type, logoUrl, invoiceNum, total, fc, fd) {
       <div style="margin-bottom:24px">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b;margin-bottom:8px">Bill To:</div>
         <div style="font-weight:700;font-size:15px">${d.clientName}</div>
-        <div style="font-size:13px;line-height:1.6;margin-top:4px">${d.clientAddr1}<br/>${d.clientAddr2}<br/>${d.clientCountry}</div>
+        <div style="font-size:13px;line-height:1.6;margin-top:4px">${d.clientAddr1}${d.clientAddr1 ? "<br/>" : ""}${d.clientAddr2}<br/>${d.clientCountry}</div>
       </div>
       <table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
         <thead>
@@ -475,10 +355,10 @@ function buildInvoiceHtml(d, type, logoUrl, invoiceNum, total, fc, fd) {
           <span style="font-size:22px;font-weight:900;color:${primaryColor}">${fc(total)}</span>
         </div>
       </div>
-      <div style="margin-top:32px;padding-top:24px;border-top:1px solid #e2e8f0">
-        <p style="font-size:13px;line-height:1.6;color:#374151;padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin:0 0 12px">${d.paymentNotice}</p>
-        <p style="font-size:13px;color:#64748b">If you have any questions, contact <a href="mailto:${d.contactEmail}" style="color:${primaryColor};font-weight:700">${d.contactEmail}</a>.</p>
-        <p style="font-size:13px;font-weight:700;margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0">Thank you for your business,<br/><span style="color:${primaryColor}">sFOX</span></p>
+      ${bankHtml}
+      <div style="margin-top:24px;padding-top:24px;border-top:1px solid #e2e8f0">
+        <p style="font-size:13px;line-height:1.6;color:#374151;padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin:0 0 12px;white-space:pre-line">${d.paymentNotice}</p>
+        <p style="font-size:13px;font-weight:700;margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0">Thank you for your business,<br/><span style="color:${primaryColor}">Alessa's Boat Clinic</span></p>
       </div>
     </div>`;
 }

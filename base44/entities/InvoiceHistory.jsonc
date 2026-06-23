@@ -13,8 +13,6 @@
     "invoice_type": {
       "type": "string",
       "enum": [
-        "custody",
-        "connect",
         "boatclinic"
       ],
       "description": "Type of invoice"
