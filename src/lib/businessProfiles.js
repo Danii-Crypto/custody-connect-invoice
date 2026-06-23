@@ -10,8 +10,8 @@ export const businessProfiles = {
     name: "Alessa's Boat Clinic",
     logoUrl: "https://media.base44.com/images/public/6a049f1fdb040b9d18c5bf50/b400a6da5_AllessasBoatClinicNOBG.jpg",
     companyName: "ALESSA'S BOAT CLINIC FOUNDATION LIMITED",
-    companyAddr1: "",
-    companyAddr2: "Jamaica",
+    companyAddr1: "LOWER BRYAN'S BAY",
+    companyAddr2: "NORWICH DISTRICT, PORTLAND",
     companyPhone: "876-363-9741 | 876-838-3081 | 876-303-9855",
     contactEmail: "",
     bankDetails: {
