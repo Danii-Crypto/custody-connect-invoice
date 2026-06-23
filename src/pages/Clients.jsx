@@ -254,6 +254,10 @@ export default function Clients() {
                 <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Country</Label>
                 <Input value={form.country} onChange={e => setForm(p => ({ ...p, country: e.target.value }))} placeholder="US" className="h-9 text-sm" />
               </div>
+              <div className="sm:col-span-2">
+                <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Email</Label>
+                <Input type="email" value={form.email || ""} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="client@example.com" className="h-9 text-sm" />
+              </div>
               <div>
                 <Label className="text-xs font-semibold text-muted-foreground mb-1 block">Notes</Label>
                 <Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} placeholder="Optional notes…" className="text-sm min-h-[60px] resize-none" />
