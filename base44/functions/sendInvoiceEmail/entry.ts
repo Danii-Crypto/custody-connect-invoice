@@ -7,6 +7,7 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { to, clientName, invoiceNumber, invoiceDate, dueDate, amount, companyName } = await req.json();
+    const companyEmail = 'boatclinicalessas@gmail.com';
     if (!to) return Response.json({ error: 'Recipient email is required' }, { status: 400 });
 
     const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
@@ -35,9 +36,10 @@ Deno.serve(async (req) => {
       'Thank you for your business.',
       '',
       companyName,
+      companyEmail,
     ].join('\n');
 
-    const rawEmail = `To: ${to}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n${body}`;
+    const rawEmail = `To: ${to}\r\nReply-To: ${companyEmail}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n${body}`;
     const bytes = new TextEncoder().encode(rawEmail);
     let binary = '';
     for (const b of bytes) binary += String.fromCharCode(b);

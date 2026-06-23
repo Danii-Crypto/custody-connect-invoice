@@ -13,7 +13,7 @@ export const businessProfiles = {
     companyAddr1: "LOWER BRYAN'S BAY",
     companyAddr2: "NORWICH DISTRICT, PORTLAND",
     companyPhone: "876-363-9741 | 876-838-3081 | 876-303-9855",
-    contactEmail: "",
+    contactEmail: "boatclinicalessas@gmail.com",
     bankDetails: {
       bank: "NCB",
       branch: "Port Antonio",
