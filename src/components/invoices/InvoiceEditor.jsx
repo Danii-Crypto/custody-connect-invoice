@@ -154,7 +154,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
 
           <ClientSelector onSelect={c => setTemp(p => ({ ...p, clientId: c.id, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "" }))} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
             {/* Invoice Info */}
             <div className="bg-secondary/20 p-5 rounded-xl border border-border/40">
               <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> Invoice Information</h4>
@@ -197,8 +197,15 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
               <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-primary" /> Company Information</h4>
               <div className="space-y-4">
                 <div>
-                  <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Logo URL</Label>
-                  <Input value={temp.logoUrl} onChange={e => setTemp(p => ({ ...p, logoUrl: e.target.value }))} className="bg-card h-9 text-sm" placeholder="https://..." />
+                  <Label className="text-xs font-semibold text-muted-foreground mb-2 block">Logo</Label>
+                  <div className="flex items-center gap-3 bg-card border border-border/50 rounded-lg p-3">
+                    {temp.logoUrl ? (
+                      <img src={temp.logoUrl} alt="Logo preview" className="h-16 w-auto object-contain max-w-[160px] shrink-0" onError={e => { e.target.style.display = 'none'; }} />
+                    ) : (
+                      <div className="h-16 w-32 flex items-center justify-center text-xs text-muted-foreground/60 border border-dashed border-border rounded shrink-0">No logo</div>
+                    )}
+                    <Input value={temp.logoUrl} onChange={e => setTemp(p => ({ ...p, logoUrl: e.target.value }))} className="bg-background h-9 text-sm flex-1" placeholder="https://..." />
+                  </div>
                 </div>
                 <div>
                   <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Company Name</Label>
@@ -311,7 +318,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
           </div>
 
           {/* Footer Info */}
-          <div className="mt-6 bg-secondary/20 p-5 rounded-xl border border-border/40">
+          <div className="mt-5 bg-secondary/20 p-5 rounded-xl border border-border/40">
             <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-muted-foreground" /> Footer Information</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -343,7 +350,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
           {/* Header */}
           <div className="flex justify-between items-start p-10 pb-6 border-b border-border print:p-0 print:pb-6 print:pt-4">
             <div className="flex flex-col items-start gap-4">
-              <img src={data.logoUrl} alt="Company Logo" className="h-14 w-auto object-contain max-w-[220px]" onError={e => { e.target.style.display = 'none'; }} />
+              <img src={data.logoUrl} alt="Company Logo" className="h-24 w-auto object-contain max-w-[300px]" onError={e => { e.target.style.display = 'none'; }} />
               <div>
                 <div className="font-bold text-sm text-foreground uppercase tracking-wide mb-1">{data.companyName}</div>
                 <div className="text-xs text-muted-foreground leading-relaxed font-medium">

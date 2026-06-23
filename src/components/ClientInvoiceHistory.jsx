@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { FileText, Receipt, Download, Loader2, FileSpreadsheet } from "lucide-react";
+import { FileText, Receipt, Download, Loader2, FileSpreadsheet, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
@@ -102,6 +102,8 @@ async function generatePdfBytes(invoice) {
 export default function ClientInvoiceHistory({ clientId, clientName, showAll = false }) {
   const [selected, setSelected] = useState(new Set());
   const [zipping, setZipping] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: history = [], isLoading } = useQuery({
     queryKey: ["invoice-history", clientId, clientName, showAll],
@@ -174,6 +176,23 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
     a.click();
     URL.revokeObjectURL(url);
     setZipping(false);
+  }
+
+  async function handleDelete(id) {
+    setDeletingId(id);
+    try {
+      await base44.entities.InvoiceHistory.delete(id);
+      queryClient.invalidateQueries({ queryKey: ["invoice-history"] });
+      queryClient.invalidateQueries({ queryKey: ["invoiceHistory"] });
+      setSelected(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    } catch {
+      // error silently
+    }
+    setDeletingId(null);
   }
 
   if (isLoading) {
@@ -269,6 +288,14 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
                 {h.invoice_type}
               </Badge>
               <div className="font-bold text-primary text-sm">{formatCurrency(h.amount)}</div>
+              <button
+                onClick={e => { e.stopPropagation(); handleDelete(h.id); }}
+                disabled={deletingId === h.id}
+                title="Delete"
+                className="p-2 rounded-lg text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
+              >
+                {deletingId === h.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              </button>
             </div>
           </div>
         ))}

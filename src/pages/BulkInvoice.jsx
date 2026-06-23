@@ -322,7 +322,7 @@ function buildInvoiceHtml(d, invoiceNum, total) {
     <div style="font-family:Inter,Arial,sans-serif;font-size:14px;color:#111;background:#fff;padding:40px;width:850px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #e2e8f0;padding-bottom:24px;margin-bottom:24px">
         <div>
-          <img src="${d.logoUrl}" alt="Alessa's Boat Clinic" style="height:56px;margin-bottom:12px" />
+          <img src="${d.logoUrl}" alt="Alessa's Boat Clinic" style="height:96px;margin-bottom:12px" />
           <div style="font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px">${d.companyName}</div>
           <div style="font-size:12px;color:#64748b;line-height:1.6;margin-top:4px">${d.companyAddr1}${d.companyAddr1 ? "<br/>" : ""}${d.companyAddr2}<br/>${d.companyPhone}</div>
         </div>
