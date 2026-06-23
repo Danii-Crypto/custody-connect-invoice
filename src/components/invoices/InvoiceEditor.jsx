@@ -322,20 +322,20 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
                       </SelectContent>
                     </Select>
                   )}
-                  <div className="grid grid-cols-12 gap-2 px-1 text-xs font-semibold text-muted-foreground">
-                    <div className="col-span-5">Description</div>
-                    <div className="col-span-2 text-center">Qty</div>
-                    <div className="col-span-2 text-right">Price</div>
-                    <div className="col-span-2 text-right">Total</div>
-                    <div className="col-span-1" />
+                  <div className="flex items-center gap-2 px-1 text-xs font-semibold text-muted-foreground">
+                    <div className="flex-1">Description</div>
+                    <div className="w-14 text-center">Qty</div>
+                    <div className="w-24 text-right">Price ($)</div>
+                    <div className="w-28 text-right">Total</div>
+                    <div className="w-8" />
                   </div>
                   {(temp.lineItems || []).map((item, idx) => (
-                    <div key={idx} className="grid grid-cols-12 gap-2 items-center py-1 border-b border-border/40 last:border-0">
-                      <Input placeholder="Service description" value={item.description} onChange={e => updateLine(idx, "description", e.target.value)} className="col-span-5 h-9 text-sm" />
-                      <Input type="number" value={item.quantity} onChange={e => updateLine(idx, "quantity", e.target.value)} className="col-span-2 h-9 text-sm text-center" />
-                      <Input type="number" value={item.unitPrice} onChange={e => updateLine(idx, "unitPrice", e.target.value)} className="col-span-2 h-9 text-sm text-right" />
-                      <div className="col-span-2 text-right text-sm font-bold text-foreground py-1">{formatCurrency(Number(item.quantity) * Number(item.unitPrice))}</div>
-                      <button type="button" onClick={() => removeLine(idx)} className="col-span-1 flex items-center justify-center h-9 text-destructive hover:bg-destructive/10 rounded transition-colors">
+                    <div key={idx} className="flex items-center gap-2 py-1 border-b border-border/40 last:border-0">
+                      <Input placeholder="Service description" value={item.description} onChange={e => updateLine(idx, "description", e.target.value)} className="flex-1 h-9 text-sm min-w-0" />
+                      <Input type="number" value={item.quantity} onChange={e => updateLine(idx, "quantity", e.target.value)} className="w-14 h-9 text-sm text-center shrink-0" />
+                      <Input type="number" value={item.unitPrice} onChange={e => updateLine(idx, "unitPrice", e.target.value)} className="w-24 h-9 text-sm text-right shrink-0" />
+                      <div className="w-28 text-right text-sm font-bold text-foreground py-1 shrink-0">{formatCurrency(Number(item.quantity) * Number(item.unitPrice))}</div>
+                      <button type="button" onClick={() => removeLine(idx)} className="w-8 flex items-center justify-center h-9 text-destructive hover:bg-destructive/10 rounded transition-colors shrink-0">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
