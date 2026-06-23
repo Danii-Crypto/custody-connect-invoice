@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
+import { businessProfiles } from "@/lib/businessProfiles";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -34,9 +35,10 @@ export default function Login() {
 
   return (
     <AuthLayout
+      logoUrl={businessProfiles.alessa.logoUrl}
       icon={LogIn}
       title="Welcome back"
-      subtitle="Log in to your account"
+      subtitle="Log in to Alessa's Boat Clinic Foundation Limited"
       footer={
         <>
           Don't have an account?{" "}
