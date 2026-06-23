@@ -6,6 +6,10 @@
       "type": "string",
       "description": "Client or company name"
     },
+    "email": {
+      "type": "string",
+      "description": "Client email address"
+    },
     "addr1": {
       "type": "string",
       "description": "Address line 1"

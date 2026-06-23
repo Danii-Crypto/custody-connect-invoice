@@ -36,6 +36,15 @@
     "file_name": {
       "type": "string",
       "description": "Downloaded PDF filename"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid"
+      ],
+      "default": "pending",
+      "description": "Payment status"
     }
   },
   "required": [

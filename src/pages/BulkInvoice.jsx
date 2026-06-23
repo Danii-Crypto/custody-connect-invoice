@@ -289,7 +289,8 @@ async function renderAndDownload(invoiceData, containerRef) {
     due_date: invoiceData.dueDate || "",
     amount: total,
     file_name: `Boat_Clinic_Invoice_${clientName}_${dateStr}.pdf`,
-  });
+    status: "pending",
+    });
 }
 
 function buildInvoiceHtml(d, invoiceNum, total) {

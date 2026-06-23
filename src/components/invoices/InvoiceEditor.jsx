@@ -6,12 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { Download, Edit, RefreshCw, Check, X, Plus, Trash2, Loader2, FileText } from "lucide-react";
+import { Download, Edit, RefreshCw, Check, X, Plus, Trash2, Loader2, FileText, Mail } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import ClientSelector from "@/components/ClientSelector";
 import AnimatedElement from "./AnimatedElement";
 import { base44 } from "@/api/base44Client";
+import { sendInvoiceEmail } from "@/functions/sendInvoiceEmail";
 import { formatDate, formatCurrency, generateInvoiceNumber, formatFileDate, months } from "@/lib/invoiceUtils";
 
 export default function InvoiceEditor({ profile, invoiceConfig }) {
@@ -19,6 +20,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
   const isSingleLine = invoiceConfig.singleLine;
   const invoiceRef = useRef(null);
   const [downloading, setDownloading] = useState(false);
+  const [emailing, setEmailing] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   const buildDefaults = () => ({
@@ -32,6 +34,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
     companyPhone: profile.companyPhone,
     logoUrl: profile.logoUrl,
     contactEmail: profile.contactEmail,
+    clientEmail: "",
     clientId: "",
     ...(invoiceConfig.defaultClient || {}),
     serviceDescription: invoiceConfig.serviceDescription || "",
@@ -72,6 +75,30 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
     toast({ title: "New invoice generated", description: "Dates updated to today." });
   }
 
+  async function handleEmailInvoice() {
+    if (!data.clientEmail) {
+      toast({ title: "No client email", description: "Add a client email in the edit form first." });
+      return;
+    }
+    setEmailing(true);
+    try {
+      await sendInvoiceEmail({
+        to: data.clientEmail,
+        clientName: data.clientName,
+        invoiceNumber: invoiceNum,
+        invoiceDate: data.invoiceDate,
+        dueDate: data.dueDate,
+        amount: total,
+        companyName: data.companyName,
+      });
+      toast({ title: "Email sent!", description: `Invoice summary sent to ${data.clientEmail}` });
+    } catch (err) {
+      const msg = err?.response?.data?.error || err.message || "Could not send email.";
+      toast({ title: "Email failed", description: msg });
+    }
+    setEmailing(false);
+  }
+
   function addLine() {
     setTemp(prev => ({ ...prev, lineItems: [...(prev.lineItems || []), { description: "", quantity: 1, unitPrice: 0 }] }));
   }
@@ -109,6 +136,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
       due_date: data.dueDate || "",
       amount: total,
       file_name: fileName,
+      status: "pending",
     });
     setDownloading(false);
   }
@@ -125,6 +153,9 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
         </Button>
         <Button variant="outline" onClick={downloadPDF} disabled={downloading} className="border-border text-foreground hover:bg-muted hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm">
           {downloading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />} Download PDF
+        </Button>
+        <Button variant="outline" onClick={handleEmailInvoice} disabled={emailing || !data.clientEmail} className="border-accent text-accent hover:bg-accent hover:text-white hover:shadow-md hover:scale-105 active:scale-95 transition-all shadow-sm">
+          {emailing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Mail className="h-4 w-4 mr-2" />} Email to Client
         </Button>
       </div>
 
@@ -152,7 +183,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
             </button>
           </div>
 
-          <ClientSelector onSelect={c => setTemp(p => ({ ...p, clientId: c.id, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "" }))} />
+          <ClientSelector onSelect={c => setTemp(p => ({ ...p, clientId: c.id, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "", clientEmail: c.email || "" }))} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
             {/* Invoice Info */}
@@ -249,6 +280,10 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
                 <div>
                   <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Country</Label>
                   <Input value={temp.clientCountry} onChange={e => setTemp(p => ({ ...p, clientCountry: e.target.value }))} className="bg-card h-9 text-sm" />
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Client Email</Label>
+                  <Input type="email" value={temp.clientEmail} onChange={e => setTemp(p => ({ ...p, clientEmail: e.target.value }))} className="bg-card h-9 text-sm" placeholder="client@example.com" />
                 </div>
               </div>
             </div>

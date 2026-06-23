@@ -178,6 +178,12 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
     setZipping(false);
   }
 
+  async function handleToggleStatus(id, currentStatus) {
+    const newStatus = currentStatus === "paid" ? "pending" : "paid";
+    await base44.entities.InvoiceHistory.update(id, { status: newStatus });
+    queryClient.invalidateQueries({ queryKey: ["invoice-history"] });
+  }
+
   async function handleDelete(id) {
     setDeletingId(id);
     try {
@@ -287,6 +293,12 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
               <Badge variant="outline" className="border-accent text-accent capitalize">
                 {h.invoice_type}
               </Badge>
+              <button
+                onClick={e => { e.stopPropagation(); handleToggleStatus(h.id, h.status); }}
+                className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${h.status === "paid" ? "bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700" : "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700"}`}
+              >
+                {h.status === "paid" ? "Paid" : "Pending"}
+              </button>
               <div className="font-bold text-primary text-sm">{formatCurrency(h.amount)}</div>
               <button
                 onClick={e => { e.stopPropagation(); handleDelete(h.id); }}

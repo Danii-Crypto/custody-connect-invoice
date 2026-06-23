@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { FileText, Users, Layers, HelpCircle, Moon, Sun } from "lucide-react";
+import { FileText, Users, Layers, HelpCircle, Moon, Sun, BarChart3 } from "lucide-react";
 import { getTheme, setTheme } from "@/lib/theme";
 
 export default function Header() {
@@ -46,6 +46,17 @@ export default function Header() {
           >
             <Layers className="h-4 w-4" />
             Bulk Generate
+          </Link>
+          <Link
+            to="/reports"
+            className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
+              location.pathname === "/reports"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+          >
+            <BarChart3 className="h-4 w-4" />
+            Reports
           </Link>
           <Link
             to="/how-to-use"
