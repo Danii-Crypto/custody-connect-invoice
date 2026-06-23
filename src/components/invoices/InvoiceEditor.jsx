@@ -41,28 +41,28 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
     serviceDescription: invoiceConfig.serviceDescription || "",
     quantity: invoiceConfig.quantity ?? 1,
     unitPrice: invoiceConfig.unitPrice ?? 0,
-    lineItems: (invoiceConfig.lineItems || []).map(i => ({ ...i })),
+    lineItems: (invoiceConfig.lineItems || []).map((i) => ({ ...i })),
     paymentNotice: invoiceConfig.paymentNotice,
-    invoiceNumberOverride: "",
+    invoiceNumberOverride: ""
   });
 
   const [data, setData] = useState(buildDefaults);
   const [temp, setTemp] = useState(buildDefaults);
 
   const invoiceNum = data.invoiceNumberOverride || generateInvoiceNumber(data.prefix, data.invoiceDate);
-  const total = isSingleLine
-    ? Number(data.quantity) * Number(data.unitPrice)
-    : (data.lineItems || []).reduce((s, i) => s + Number(i.quantity) * Number(i.unitPrice), 0);
-  const tempTotal = isSingleLine
-    ? Number(temp.quantity) * Number(temp.unitPrice)
-    : (temp.lineItems || []).reduce((s, i) => s + Number(i.quantity) * Number(i.unitPrice), 0);
+  const total = isSingleLine ?
+  Number(data.quantity) * Number(data.unitPrice) :
+  (data.lineItems || []).reduce((s, i) => s + Number(i.quantity) * Number(i.unitPrice), 0);
+  const tempTotal = isSingleLine ?
+  Number(temp.quantity) * Number(temp.unitPrice) :
+  (temp.lineItems || []).reduce((s, i) => s + Number(i.quantity) * Number(i.unitPrice), 0);
 
   function openEdit() {
-    setTemp({ ...data, lineItems: (data.lineItems || []).map(i => ({ ...i })) });
+    setTemp({ ...data, lineItems: (data.lineItems || []).map((i) => ({ ...i })) });
     setEditOpen(true);
   }
   function applyEdit() {
-    setData({ ...temp, lineItems: (temp.lineItems || []).map(i => ({ ...i })) });
+    setData({ ...temp, lineItems: (temp.lineItems || []).map((i) => ({ ...i })) });
     setEditOpen(false);
     toast({ title: "Invoice updated", description: `${invoiceConfig.label} has been updated successfully.` });
   }
@@ -72,7 +72,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
   function generateNew() {
     const t = new Date().toISOString().split("T")[0];
     const d = new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
-    setData(prev => ({ ...prev, invoiceDate: t, dueDate: d, invoiceNumberOverride: "" }));
+    setData((prev) => ({ ...prev, invoiceDate: t, dueDate: d, invoiceNumberOverride: "" }));
     toast({ title: "New invoice generated", description: "Dates updated to today." });
   }
 
@@ -90,7 +90,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
         invoiceDate: data.invoiceDate,
         dueDate: data.dueDate,
         amount: total,
-        companyName: data.companyName,
+        companyName: data.companyName
       });
       toast({ title: "Email sent!", description: `Invoice summary sent to ${data.clientEmail}` });
     } catch (err) {
@@ -101,18 +101,18 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
   }
 
   function addLine() {
-    setTemp(prev => ({ ...prev, lineItems: [...(prev.lineItems || []), { description: "", quantity: 1, unitPrice: 0 }] }));
+    setTemp((prev) => ({ ...prev, lineItems: [...(prev.lineItems || []), { description: "", quantity: 1, unitPrice: 0 }] }));
   }
   function removeLine(idx) {
-    setTemp(prev => ({ ...prev, lineItems: prev.lineItems.filter((_, i) => i !== idx) }));
+    setTemp((prev) => ({ ...prev, lineItems: prev.lineItems.filter((_, i) => i !== idx) }));
   }
   function updateLine(idx, field, value) {
-    setTemp(prev => ({ ...prev, lineItems: prev.lineItems.map((item, i) => i === idx ? { ...item, [field]: value } : item) }));
+    setTemp((prev) => ({ ...prev, lineItems: prev.lineItems.map((item, i) => i === idx ? { ...item, [field]: value } : item) }));
   }
   function applyTemplate(templateId) {
-    const template = (profile.serviceTemplates || []).find(t => t.id === templateId);
+    const template = (profile.serviceTemplates || []).find((t) => t.id === templateId);
     if (!template) return;
-    setTemp(prev => ({ ...prev, lineItems: template.lineItems.map(i => ({ ...i })) }));
+    setTemp((prev) => ({ ...prev, lineItems: template.lineItems.map((i) => ({ ...i })) }));
     toast({ title: "Template applied", description: `${template.name} loaded — adjust quantities and prices as needed.` });
   }
 
@@ -121,12 +121,12 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
     setDownloading(true);
     const canvas = await html2canvas(invoiceRef.current, {
       scale: 2, useCORS: true, backgroundColor: "#ffffff", logging: false,
-      removeContainer: true, scrollX: 0, scrollY: 0, windowWidth: invoiceRef.current.scrollWidth,
+      removeContainer: true, scrollX: 0, scrollY: 0, windowWidth: invoiceRef.current.scrollWidth
     });
     const imgData = canvas.toDataURL("image/png");
-    const pageWidthMm = 210, marginMm = 8;
+    const pageWidthMm = 210,marginMm = 8;
     const contentWidthMm = pageWidthMm - marginMm * 2;
-    const imgHeightMm = (canvas.height * contentWidthMm) / canvas.width;
+    const imgHeightMm = canvas.height * contentWidthMm / canvas.width;
     const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [pageWidthMm, imgHeightMm + marginMm * 2] });
     pdf.addImage(imgData, "PNG", marginMm, marginMm, contentWidthMm, imgHeightMm);
     const clientName = (data.clientName || "Client").replace(/[/\\?%*:|"<>]/g, "-");
@@ -144,7 +144,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
       due_date: data.dueDate || "",
       amount: total,
       file_name: fileName,
-      status: "pending",
+      status: "pending"
     });
     setDownloading(false);
   }
@@ -179,8 +179,8 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
       </div>
 
       {/* Edit Form */}
-      {editOpen && (
-        <AnimatedElement className="print-hidden border border-border/60 rounded-2xl bg-card shadow-2xl p-6 md:p-8 mb-8">
+      {editOpen &&
+      <AnimatedElement className="print-hidden border border-border/60 rounded-2xl bg-card shadow-2xl p-6 md:p-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-foreground">Edit {invoiceConfig.label}</h3>
             <button onClick={() => setEditOpen(false)} className="text-muted-foreground hover:text-foreground p-2 hover:bg-muted rounded-full transition-colors">
@@ -188,7 +188,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
             </button>
           </div>
 
-          <ClientSelector onSelect={c => setTemp(p => ({ ...p, clientId: c.id, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "", clientEmail: c.email || "", vesselName: c.vessel_name || "" }))} />
+          <ClientSelector onSelect={(c) => setTemp((p) => ({ ...p, clientId: c.id, clientName: c.name, clientAddr1: c.addr1 || "", clientAddr2: c.addr2 || "", clientCountry: c.country || "", clientEmail: c.email || "", vesselName: c.vessel_name || "" }))} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-6">
             {/* Invoice Details */}
@@ -197,33 +197,33 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">Prefix</Label>
-                  <Input value={temp.prefix} onChange={e => setTemp(p => ({ ...p, prefix: e.target.value }))} className="h-9 text-sm" />
+                  <Input value={temp.prefix} onChange={(e) => setTemp((p) => ({ ...p, prefix: e.target.value }))} className="h-9 text-sm" />
                 </div>
-                {!isSingleLine && (
-                  <div>
+                {!isSingleLine &&
+              <div>
                     <Label className="text-xs text-muted-foreground mb-1 block">Service Month</Label>
-                    <Select value={temp.serviceMonth} onValueChange={val => setTemp(p => ({ ...p, serviceMonth: val }))}>
+                    <Select value={temp.serviceMonth} onValueChange={(val) => setTemp((p) => ({ ...p, serviceMonth: val }))}>
                       <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        {months.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                        {months.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
-                )}
+              }
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">Invoice Date</Label>
-                  <Input type="date" value={temp.invoiceDate} onChange={e => setTemp(p => ({ ...p, invoiceDate: e.target.value, invoiceNumberOverride: "" }))} className="h-9 text-sm" />
+                  <Input type="date" value={temp.invoiceDate} onChange={(e) => setTemp((p) => ({ ...p, invoiceDate: e.target.value, invoiceNumberOverride: "" }))} className="h-9 text-sm" />
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">Due Date</Label>
-                  <Input type="date" value={temp.dueDate} onChange={e => setTemp(p => ({ ...p, dueDate: e.target.value }))} className="h-9 text-sm" />
+                  <Input type="date" value={temp.dueDate} onChange={(e) => setTemp((p) => ({ ...p, dueDate: e.target.value }))} className="h-9 text-sm" />
                 </div>
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1 block">Invoice Number</Label>
-                <Input placeholder={generateInvoiceNumber(temp.prefix, temp.invoiceDate)} value={temp.invoiceNumberOverride || ""} onChange={e => setTemp(p => ({ ...p, invoiceNumberOverride: e.target.value }))} className="h-9 text-sm" />
+                <Input placeholder={generateInvoiceNumber(temp.prefix, temp.invoiceDate)} value={temp.invoiceNumberOverride || ""} onChange={(e) => setTemp((p) => ({ ...p, invoiceNumberOverride: e.target.value }))} className="h-9 text-sm" />
                 <p className="text-xs text-muted-foreground mt-1">Leave blank to auto-generate</p>
               </div>
             </div>
@@ -232,30 +232,30 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider pb-2 border-b border-border">Company</h4>
               <div className="flex items-center gap-3">
-                {temp.logoUrl ? (
-                  <img src={temp.logoUrl} alt="Logo" className="h-12 w-auto object-contain max-w-[80px] shrink-0 rounded-lg" onError={e => { e.target.style.display = 'none'; }} />
-                ) : (
-                  <div className="h-12 w-20 flex items-center justify-center text-xs text-muted-foreground/50 border border-dashed border-border rounded shrink-0">No logo</div>
-                )}
-                <Input value={temp.logoUrl} onChange={e => setTemp(p => ({ ...p, logoUrl: e.target.value }))} className="h-9 text-sm flex-1" placeholder="Logo URL…" />
+                {temp.logoUrl ?
+              <img src={temp.logoUrl} alt="Logo" className="h-12 w-auto object-contain max-w-[80px] shrink-0 rounded-lg" onError={(e) => {e.target.style.display = 'none';}} /> :
+
+              <div className="h-12 w-20 flex items-center justify-center text-xs text-muted-foreground/50 border border-dashed border-border rounded shrink-0">No logo</div>
+              }
+                <Input value={temp.logoUrl} onChange={(e) => setTemp((p) => ({ ...p, logoUrl: e.target.value }))} className="h-9 text-sm flex-1" placeholder="Logo URL…" />
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1 block">Company Name</Label>
-                <Input value={temp.companyName} onChange={e => setTemp(p => ({ ...p, companyName: e.target.value }))} className="h-9 text-sm" />
+                <Input value={temp.companyName} onChange={(e) => setTemp((p) => ({ ...p, companyName: e.target.value }))} className="h-9 text-sm" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">Address 1</Label>
-                  <Input value={temp.companyAddr1} onChange={e => setTemp(p => ({ ...p, companyAddr1: e.target.value }))} className="h-9 text-sm" />
+                  <Input value={temp.companyAddr1} onChange={(e) => setTemp((p) => ({ ...p, companyAddr1: e.target.value }))} className="h-9 text-sm" />
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">Address 2</Label>
-                  <Input value={temp.companyAddr2} onChange={e => setTemp(p => ({ ...p, companyAddr2: e.target.value }))} className="h-9 text-sm" />
+                  <Input value={temp.companyAddr2} onChange={(e) => setTemp((p) => ({ ...p, companyAddr2: e.target.value }))} className="h-9 text-sm" />
                 </div>
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1 block">Phone</Label>
-                <Input value={temp.companyPhone} onChange={e => setTemp(p => ({ ...p, companyPhone: e.target.value }))} className="h-9 text-sm" />
+                <Input value={temp.companyPhone} onChange={(e) => setTemp((p) => ({ ...p, companyPhone: e.target.value }))} className="h-9 text-sm" />
               </div>
             </div>
 
@@ -264,78 +264,78 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
               <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider pb-2 border-b border-border">Bill To</h4>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1 block">Owner Name</Label>
-                <Input value={temp.clientName} onChange={e => setTemp(p => ({ ...p, clientName: e.target.value }))} className="h-9 text-sm" />
+                <Input value={temp.clientName} onChange={(e) => setTemp((p) => ({ ...p, clientName: e.target.value }))} className="h-9 text-sm" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">Vessel Name</Label>
-                  <Input value={temp.vesselName} onChange={e => setTemp(p => ({ ...p, vesselName: e.target.value }))} className="h-9 text-sm" placeholder="e.g. SS Sea Breeze" />
+                  <Input value={temp.vesselName} onChange={(e) => setTemp((p) => ({ ...p, vesselName: e.target.value }))} className="h-9 text-sm" placeholder="e.g. SS Sea Breeze" />
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">Country</Label>
-                  <Input value={temp.clientCountry} onChange={e => setTemp(p => ({ ...p, clientCountry: e.target.value }))} className="h-9 text-sm" />
+                  <Input value={temp.clientCountry} onChange={(e) => setTemp((p) => ({ ...p, clientCountry: e.target.value }))} className="h-9 text-sm" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">Address 1</Label>
-                  <Input value={temp.clientAddr1} onChange={e => setTemp(p => ({ ...p, clientAddr1: e.target.value }))} className="h-9 text-sm" />
+                  <Input value={temp.clientAddr1} onChange={(e) => setTemp((p) => ({ ...p, clientAddr1: e.target.value }))} className="h-9 text-sm" />
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1 block">Address 2</Label>
-                  <Input value={temp.clientAddr2} onChange={e => setTemp(p => ({ ...p, clientAddr2: e.target.value }))} className="h-9 text-sm" />
+                  <Input value={temp.clientAddr2} onChange={(e) => setTemp((p) => ({ ...p, clientAddr2: e.target.value }))} className="h-9 text-sm" />
                 </div>
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1 block">Email</Label>
-                <Input type="email" value={temp.clientEmail} onChange={e => setTemp(p => ({ ...p, clientEmail: e.target.value }))} className="h-9 text-sm" placeholder="owner@example.com" />
+                <Input type="email" value={temp.clientEmail} onChange={(e) => setTemp((p) => ({ ...p, clientEmail: e.target.value }))} className="h-9 text-sm" placeholder="owner@example.com" />
               </div>
             </div>
 
             {/* Service Details */}
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider pb-2 border-b border-border">Service Details</h4>
-              {isSingleLine ? (
-                <div className="space-y-3">
+              {isSingleLine ?
+            <div className="space-y-3">
                   <div>
                     <Label className="text-xs text-muted-foreground mb-1 block">Service Description</Label>
-                    <Input value={temp.serviceDescription} onChange={e => setTemp(p => ({ ...p, serviceDescription: e.target.value }))} className="h-9 text-sm" />
+                    <Input value={temp.serviceDescription} onChange={(e) => setTemp((p) => ({ ...p, serviceDescription: e.target.value }))} className="h-9 text-sm" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label className="text-xs text-muted-foreground mb-1 block">Quantity</Label>
-                      <Input type="number" value={temp.quantity} onChange={e => setTemp(p => ({ ...p, quantity: e.target.value }))} className="h-9 text-sm" />
+                      <Input type="number" value={temp.quantity} onChange={(e) => setTemp((p) => ({ ...p, quantity: e.target.value }))} className="h-9 text-sm" />
                     </div>
                     <div>
                       <Label className="text-xs text-muted-foreground mb-1 block">Unit Price ($)</Label>
-                      <Input type="number" value={temp.unitPrice} onChange={e => setTemp(p => ({ ...p, unitPrice: e.target.value }))} className="h-9 text-sm" />
+                      <Input type="number" value={temp.unitPrice} onChange={(e) => setTemp((p) => ({ ...p, unitPrice: e.target.value }))} className="h-9 text-sm" />
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {(profile.serviceTemplates || []).length > 0 && (
-                    <Select onValueChange={val => applyTemplate(val)}>
+                </div> :
+
+            <div className="space-y-2">
+                  {(profile.serviceTemplates || []).length > 0 &&
+              <Select onValueChange={(val) => applyTemplate(val)}>
                       <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Apply a service template…" /></SelectTrigger>
                       <SelectContent>
-                        {(profile.serviceTemplates || []).map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                        {(profile.serviceTemplates || []).map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
-                  )}
-                  {(temp.lineItems || []).map((item, idx) => (
-                    <div key={idx} className="space-y-3 py-3 border-b border-border/40 last:border-0">
+              }
+                  {(temp.lineItems || []).map((item, idx) =>
+              <div key={idx} className="space-y-3 py-3 border-b border-border/40 last:border-0">
                       <div>
                         <Label className="text-xs text-muted-foreground mb-1 block">Service Description</Label>
-                        <Input placeholder="Service description" value={item.description} onChange={e => updateLine(idx, "description", e.target.value)} className="h-9 text-sm w-full" />
+                        <Input placeholder="Service description" value={item.description} onChange={(e) => updateLine(idx, "description", e.target.value)} className="h-9 text-sm w-full" />
                       </div>
                       <div className="grid grid-cols-3 gap-3 items-end">
                         <div>
                           <Label className="text-xs text-muted-foreground mb-1 block">Qty</Label>
-                          <Input type="number" value={item.quantity} onChange={e => updateLine(idx, "quantity", e.target.value)} className="h-8 text-sm text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                          <Input type="number" value={item.quantity} onChange={(e) => updateLine(idx, "quantity", e.target.value)} className="h-8 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none text-xs file:text-xs md:text-xs" />
                         </div>
                         <div>
                           <Label className="text-xs text-muted-foreground mb-1 block">Price ($)</Label>
-                          <Input type="number" value={item.unitPrice} onChange={e => updateLine(idx, "unitPrice", e.target.value)} className="h-9 text-sm text-right pr-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+                          <Input type="number" value={item.unitPrice} onChange={(e) => updateLine(idx, "unitPrice", e.target.value)} className="h-9 text-sm text-right pr-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                         </div>
                         <div className="flex items-end justify-between gap-2">
                           <div className="flex-1 min-w-0">
@@ -348,7 +348,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
                         </div>
                       </div>
                     </div>
-                  ))}
+              )}
                   <div className="flex justify-between items-center pt-2">
                     <Button type="button" variant="outline" size="sm" onClick={addLine} className="border-primary text-primary hover:bg-primary/10">
                       <Plus className="h-4 w-4 mr-1.5" /> Add Item
@@ -359,7 +359,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
                     </div>
                   </div>
                 </div>
-              )}
+            }
             </div>
           </div>
 
@@ -369,11 +369,11 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label className="text-xs text-muted-foreground mb-1 block">Payment Notice</Label>
-                <Textarea value={temp.paymentNotice} onChange={e => setTemp(p => ({ ...p, paymentNotice: e.target.value }))} className="text-sm min-h-[100px] resize-none" />
+                <Textarea value={temp.paymentNotice} onChange={(e) => setTemp((p) => ({ ...p, paymentNotice: e.target.value }))} className="text-sm min-h-[100px] resize-none" />
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground mb-1 block">Contact Email</Label>
-                <Input type="email" value={temp.contactEmail} onChange={e => setTemp(p => ({ ...p, contactEmail: e.target.value }))} className="h-9 text-sm" />
+                <Input type="email" value={temp.contactEmail} onChange={(e) => setTemp((p) => ({ ...p, contactEmail: e.target.value }))} className="h-9 text-sm" />
               </div>
             </div>
           </div>
@@ -388,7 +388,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
             </Button>
           </div>
         </AnimatedElement>
-      )}
+      }
 
       {/* Preview */}
       <AnimatedElement delay={200} className="flex justify-center print-full-page">
@@ -396,7 +396,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
           {/* Header */}
           <div className="flex justify-between items-start p-10 pb-6 border-b border-border print:p-0 print:pb-6 print:pt-4">
             <div className="flex flex-col items-start gap-4">
-              <img src={data.logoUrl} alt="Company Logo" className="h-36 w-auto object-contain max-w-[450px] rounded-2xl" onError={e => { e.target.style.display = 'none'; }} />
+              <img src={data.logoUrl} alt="Company Logo" className="h-36 w-auto object-contain max-w-[450px] rounded-2xl" onError={(e) => {e.target.style.display = 'none';}} />
               <div>
                 <div className="font-bold text-sm text-foreground uppercase tracking-wide mb-1">{data.companyName}</div>
                 <div className="text-xs text-muted-foreground leading-relaxed font-medium">
@@ -443,23 +443,23 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {isSingleLine ? (
-                    <tr className="border-b border-border bg-card">
+                  {isSingleLine ?
+                  <tr className="border-b border-border bg-card">
                       <td className="px-5 py-4 font-medium text-foreground">{data.serviceDescription}</td>
                       <td className="px-5 py-4 text-center text-foreground font-medium">{data.quantity}</td>
                       <td className="px-5 py-4 text-right text-foreground font-medium">{formatCurrency(data.unitPrice)}</td>
                       <td className="px-5 py-4 text-right text-foreground font-bold">{formatCurrency(Number(data.quantity) * Number(data.unitPrice))}</td>
-                    </tr>
-                  ) : (
-                    (data.lineItems || []).map((item, idx) => (
-                      <tr key={idx} className="border-b border-border bg-card last:border-b-0 hover:bg-muted/30 transition-colors">
+                    </tr> :
+
+                  (data.lineItems || []).map((item, idx) =>
+                  <tr key={idx} className="border-b border-border bg-card last:border-b-0 hover:bg-muted/30 transition-colors">
                         <td className="px-5 py-4 font-medium text-foreground">{item.description}</td>
                         <td className="px-5 py-4 text-center text-foreground font-medium">{item.quantity}</td>
                         <td className="px-5 py-4 text-right text-foreground font-medium">{formatCurrency(item.unitPrice)}</td>
                         <td className="px-5 py-4 text-right text-foreground font-bold">{formatCurrency(Number(item.quantity) * Number(item.unitPrice))}</td>
                       </tr>
-                    ))
-                  )}
+                  )
+                  }
                 </tbody>
               </table>
             </div>
@@ -472,8 +472,8 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
           </div>
 
           {/* Banking Details */}
-          {profile.bankDetails && (
-            <div className="px-10 py-4 border-t border-border print:px-0">
+          {profile.bankDetails &&
+          <div className="px-10 py-4 border-t border-border print:px-0">
               <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Payment Details:</div>
               <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm text-foreground">
                 <div><span className="text-muted-foreground">Bank:</span> {profile.bankDetails.bank}</div>
@@ -483,23 +483,23 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
                 <div className="col-span-2"><span className="text-muted-foreground">Account Number:</span> {profile.bankDetails.accountNumber}</div>
               </div>
             </div>
-          )}
+          }
 
           {/* Footer */}
           <div className="px-10 py-8 border-t border-border print:px-0 print:pt-4">
             <div className="max-w-2xl space-y-3">
               <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{data.paymentNotice}</p>
-              {data.contactEmail && (
-                <p className="text-sm text-foreground">
+              {data.contactEmail &&
+              <p className="text-sm text-foreground">
                   If you have any questions concerning this invoice, please contact{" "}
                   <a href={`mailto:${data.contactEmail}`} className="text-primary hover:underline font-semibold transition-colors">{data.contactEmail}</a>.
                 </p>
-              )}
+              }
               <p className="text-sm font-bold text-foreground pt-1">Thank you for your business,<br /><span className="text-primary">{profile.name}</span></p>
             </div>
           </div>
         </div>
       </AnimatedElement>
-    </AnimatedElement>
-  );
+    </AnimatedElement>);
+
 }
