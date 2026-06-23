@@ -331,7 +331,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
                       <div className="grid grid-cols-[2fr_5fr_4fr] gap-3 items-end">
                         <div>
                           <Label className="text-xs text-muted-foreground mb-1 block">Qty</Label>
-                          <Input type="number" value={item.quantity} onChange={(e) => updateLine(idx, "quantity", e.target.value)} className="h-7 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none text-sm file:text-sm md:text-sm pt-1 pr-2 pb-1 pl-2" />
+                          <Input type="number" value={item.quantity} onChange={(e) => updateLine(idx, "quantity", e.target.value)} className="h-7 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none text-sm file:text-sm md:text-sm py-2" />
                         </div>
                         <div>
                           <Label className="text-xs text-muted-foreground mb-1 block">Price ($)</Label>
