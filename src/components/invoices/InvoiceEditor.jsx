@@ -387,7 +387,7 @@ export default function InvoiceEditor({ profile, invoiceConfig }) {
           {/* Header */}
           <div className="flex justify-between items-start p-10 pb-6 border-b border-border print:p-0 print:pb-6 print:pt-4">
             <div className="flex flex-col items-start gap-4">
-              <img src={data.logoUrl} alt="Company Logo" className="h-24 w-auto object-contain max-w-[300px]" onError={e => { e.target.style.display = 'none'; }} />
+              <img src={data.logoUrl} alt="Company Logo" className="h-36 w-auto object-contain max-w-[450px]" onError={e => { e.target.style.display = 'none'; }} />
               <div>
                 <div className="font-bold text-sm text-foreground uppercase tracking-wide mb-1">{data.companyName}</div>
                 <div className="text-xs text-muted-foreground leading-relaxed font-medium">
