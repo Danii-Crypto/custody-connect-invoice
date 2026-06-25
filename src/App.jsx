@@ -15,6 +15,7 @@ import Reports from './pages/Reports';
 import Layout from './components/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import UserManagement from './pages/UserManagement';
+import Financials from './pages/Financials';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -49,6 +50,7 @@ const AuthenticatedApp = () => {
           <Route path="/reports" element={<Reports />} />
           <Route path="/how-to-use" element={<HowToUse />} />
           <Route path="/users" element={<UserManagement />} />
+          <Route path="/financials" element={<Financials />} />
           {/* Add your page Route elements here */}
         </Route>
       </Route>
