@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import SummaryCards from "@/components/reports/SummaryCards";
 import RevenueByClient from "@/components/reports/RevenueByClient";
 import { BarChart3 } from "lucide-react";
+import { calculateAmountPaid } from "@/lib/invoiceUtils";
 
 export default function Reports() {
   const { data: invoices = [], isLoading } = useQuery({
@@ -15,10 +16,11 @@ export default function Reports() {
     const name = inv.client_name || "Unknown";
     if (!byClient[name]) byClient[name] = { clientName: name, totalAmount: 0, invoiceCount: 0, paidAmount: 0, pendingAmount: 0 };
     const amt = Number(inv.amount) || 0;
+    const paid = inv.amount_paid != null ? Number(inv.amount_paid) : calculateAmountPaid(inv.payments);
     byClient[name].totalAmount += amt;
     byClient[name].invoiceCount += 1;
-    if (inv.status === "paid") byClient[name].paidAmount += amt;
-    else byClient[name].pendingAmount += amt;
+    byClient[name].paidAmount += paid;
+    byClient[name].pendingAmount += (amt - paid);
   });
   const clientData = Object.values(byClient).sort((a, b) => b.totalAmount - a.totalAmount);
 
@@ -26,7 +28,8 @@ export default function Reports() {
   const paidAmount = clientData.reduce((s, c) => s + c.paidAmount, 0);
   const pendingAmount = clientData.reduce((s, c) => s + c.pendingAmount, 0);
   const paidCount = invoices.filter(i => i.status === "paid").length;
-  const pendingCount = invoices.length - paidCount;
+  const partiallyPaidCount = invoices.filter(i => i.status === "partially_paid").length;
+  const pendingCount = invoices.length - paidCount - partiallyPaidCount;
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,6 +61,7 @@ export default function Reports() {
               pendingAmount={pendingAmount}
               paidCount={paidCount}
               pendingCount={pendingCount}
+              partiallyPaidCount={partiallyPaidCount}
               clientCount={clientData.length}
             />
             <RevenueByClient data={clientData} />

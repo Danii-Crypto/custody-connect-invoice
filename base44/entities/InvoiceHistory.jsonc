@@ -37,6 +37,32 @@
       "type": "number",
       "description": "Total invoice amount"
     },
+    "amount_paid": {
+      "type": "number",
+      "default": 0,
+      "description": "Total amount paid so far"
+    },
+    "payments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Payment date"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Payment amount"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Payment notes"
+          }
+        }
+      },
+      "description": "Record of payments made toward this invoice"
+    },
     "file_name": {
       "type": "string",
       "description": "Downloaded PDF filename"
@@ -45,6 +71,7 @@
       "type": "string",
       "enum": [
         "pending",
+        "partially_paid",
         "paid"
       ],
       "default": "pending",

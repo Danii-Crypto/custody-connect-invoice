@@ -1,16 +1,17 @@
-import { DollarSign, CheckCircle2, Clock, FileText } from "lucide-react";
+import { DollarSign, CheckCircle2, Clock, FileText, Wallet } from "lucide-react";
 import { formatCurrency } from "@/lib/invoiceUtils";
 
-export default function SummaryCards({ totalRevenue, totalInvoices, paidAmount, pendingAmount, paidCount, pendingCount, clientCount }) {
+export default function SummaryCards({ totalRevenue, totalInvoices, paidAmount, pendingAmount, paidCount, pendingCount, partiallyPaidCount = 0, clientCount }) {
   const cards = [
     { label: "Total Revenue", value: formatCurrency(totalRevenue), sub: `${totalInvoices} invoices`, icon: DollarSign, color: "text-primary", bg: "bg-primary/10" },
-    { label: "Collected", value: formatCurrency(paidAmount), sub: `${paidCount} paid`, icon: CheckCircle2, color: "text-green-600 dark:text-green-400", bg: "bg-green-500/10" },
+    { label: "Collected", value: formatCurrency(paidAmount), sub: `${paidCount} fully paid`, icon: CheckCircle2, color: "text-green-600 dark:text-green-400", bg: "bg-green-500/10" },
+    { label: "Partially Paid", value: formatCurrency(partiallyPaidCount), sub: `${partiallyPaidCount} invoices`, icon: Wallet, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500/10" },
     { label: "Outstanding", value: formatCurrency(pendingAmount), sub: `${pendingCount} pending`, icon: Clock, color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-500/10" },
     { label: "Clients Billed", value: clientCount, sub: `${totalInvoices} total invoices`, icon: FileText, color: "text-accent", bg: "bg-accent/10" },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
       {cards.map((card, i) => {
         const Icon = card.icon;
         return (

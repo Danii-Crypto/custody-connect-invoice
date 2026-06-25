@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { FileText, Receipt, Download, Loader2, FileSpreadsheet, Trash2, CheckCircle2, Anchor } from "lucide-react";
+import { FileText, Receipt, Download, Loader2, FileSpreadsheet, Trash2, CheckCircle2, Anchor, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import JSZip from "jszip";
+import PaymentDialog from "@/components/invoices/PaymentDialog";
+import { calculateAmountPaid } from "@/lib/invoiceUtils";
 
 function formatDate(dateStr) {
   if (!dateStr) return "—";
@@ -104,6 +106,7 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
   const [selected, setSelected] = useState(new Set());
   const [zipping, setZipping] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [paymentInvoice, setPaymentInvoice] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: history = [], isLoading } = useQuery({
@@ -179,10 +182,11 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
     setZipping(false);
   }
 
-  async function handleToggleStatus(id, currentStatus) {
-    const newStatus = currentStatus === "paid" ? "pending" : "paid";
-    await base44.entities.InvoiceHistory.update(id, { status: newStatus });
+  async function handleSavePayments(id, updates) {
+    await base44.entities.InvoiceHistory.update(id, updates);
     queryClient.invalidateQueries({ queryKey: ["invoice-history"] });
+    queryClient.invalidateQueries({ queryKey: ["invoiceHistory"] });
+    setPaymentInvoice(null);
   }
 
   async function handleDelete(id) {
@@ -284,6 +288,11 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
                   {showAll && h.client_name && <span className="font-medium text-foreground/70">{h.client_name} · </span>}
                   {h.file_name}
                 </div>
+                {h.status === "partially_paid" && h.payments && h.payments.length > 0 && (
+                  <div className="text-xs text-green-600 font-medium mt-0.5">
+                    {formatCurrency(calculateAmountPaid(h.payments))} of {formatCurrency(h.amount)} paid
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-4 shrink-0 text-right">
@@ -295,11 +304,15 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
                 {h.invoice_type}
               </Badge>
               <button
-                onClick={e => { e.stopPropagation(); handleToggleStatus(h.id, h.status); }}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${h.status === "paid" ? "bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700" : "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700"}`}
+                onClick={e => { e.stopPropagation(); setPaymentInvoice(h); }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                  h.status === "paid" ? "bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700"
+                  : h.status === "partially_paid" ? "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700"
+                  : "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700"
+                }`}
               >
-                {h.status === "paid" ? <CheckCircle2 className="h-3 w-3" /> : <Anchor className="h-3 w-3" />}
-                {h.status === "paid" ? "Paid" : "Pending"}
+                {h.status === "paid" ? <CheckCircle2 className="h-3 w-3" /> : h.status === "partially_paid" ? <Wallet className="h-3 w-3" /> : <Anchor className="h-3 w-3" />}
+                {h.status === "paid" ? "Paid" : h.status === "partially_paid" ? "Partially Paid" : "Pending"}
               </button>
               <div className="font-bold text-primary text-sm">{formatCurrency(h.amount)}</div>
               <button
@@ -314,6 +327,15 @@ export default function ClientInvoiceHistory({ clientId, clientName, showAll = f
           </div>
         ))}
       </div>
+
+      {paymentInvoice && (
+        <PaymentDialog
+          open={!!paymentInvoice}
+          onClose={() => setPaymentInvoice(null)}
+          invoice={paymentInvoice}
+          onSave={handleSavePayments}
+        />
+      )}
     </div>
   );
 }

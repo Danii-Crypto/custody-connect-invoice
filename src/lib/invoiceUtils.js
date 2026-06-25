@@ -18,6 +18,18 @@ export function generateInvoiceNumber(prefix, dateStr) {
   return `${prefix} - ${dd}${mm}${yyyy}`;
 }
 
+export function calculateAmountPaid(payments) {
+  if (!payments || !Array.isArray(payments)) return 0;
+  return payments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+}
+
+export function calculateStatus(total, payments) {
+  const paid = calculateAmountPaid(payments);
+  if (paid <= 0) return "pending";
+  if (paid < total) return "partially_paid";
+  return "paid";
+}
+
 export function formatFileDate(dateStr) {
   if (!dateStr) {
     const now = new Date();
